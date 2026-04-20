@@ -1,0 +1,77 @@
+{
+    "uuid": "21dc9854-aa0b-4684-b897-672fdfb1eba6",
+    "palletDirection": "L",
+    "box": {
+        "length": 292,
+        "height": 200,
+        "width": 220,
+        "weight": 2,
+        "tagDirection": "N",
+        "gripMode": 0,
+        "gripNum": 1,
+        "doubleTag": 0
+    },
+    "baseToolEntity": null,
+    "endToolEntity": null,
+    "spacerPlate": null,
+    "spacerPlateSequence": null,
+    "teachPoint": {
+        "boxPoint": [
+            787.641,
+            -150.498,
+            -455.73699999999997,
+            180,
+            0,
+            -21.582,
+            -8.035,
+            -138.496,
+            -118.184,
+            -13.32,
+            90,
+            -76.453
+        ],
+        "leftPalletPoint": null,
+        "rightPalletPoint": null,
+        "rollerLineDirection": 3
+    },
+    "pallet": {
+        "length": 1000,
+        "width": 1200,
+        "height": 150,
+        "layer": 11,
+        "intervalOne": 10,
+        "intervalTwo": 10,
+        "upperLeft": [
+            490,
+            1400,
+            -900,
+            180,
+            0,
+            0
+        ],
+        "upperRight": [
+            490,
+            400,
+            -900,
+            180,
+            0,
+            0
+        ],
+        "lowerLeft": [
+            -710,
+            1400,
+            -900,
+            180,
+            0,
+            0
+        ],
+        "lowerRight": [
+            -710,
+            400,
+            -900,
+            180,
+            0,
+            0
+        ]
+    }
+}

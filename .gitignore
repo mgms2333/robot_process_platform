@@ -1,0 +1,6 @@
+build/
+runtime_data/
+tests/generated_tasks/
+*.o
+*.so
+*.a
