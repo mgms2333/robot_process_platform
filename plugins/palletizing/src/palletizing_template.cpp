@@ -23,27 +23,25 @@ robot_process_platform::plugin::ProcessPlan process_plan
     |
     | 内部按箱子展开：
     | for each box in leftPointModels
-    |     -> robot_process_platform::plugin::ProcessUnitPlan pick_unit
-    |     -> robot_process_platform::plugin::ProcessUnitPlan scan_unit
-    |     -> robot_process_platform::plugin::ProcessUnitPlan transfer_unit
-    |     -> robot_process_platform::plugin::ProcessUnitPlan place_unit
+    |     -> robot_process_platform::plugin::BoxPlan box_plan
+    |     -> box_plan.process_blocks
     v
-std::vector<robot_process_platform::plugin::ProcessUnitPlan> process_units
+std::vector<robot_process_platform::plugin::BoxPlan> box_plans
     |
     | BuildTaskFromPlan()
     | 输入：const robot_process_platform::plugin::ProcessPlan&
     v
 robot_process_platform::core::Task task
     |
-    | BuildStepsFromProcessUnit()
-    | 输入：const robot_process_platform::plugin::ProcessUnitPlan&
+    | BuildExecutionBlockFromProcessBlock()
+    | 输入：const robot_process_platform::plugin::ProcessBlockPlan&
     v
-std::vector<robot_process_platform::core::Step> steps_for_unit
+robot_process_platform::core::ExecutionBlock execution_block
     |
-    | BuildStepsForPickUnit()
-    | BuildStepsForScanUnit()
-    | BuildStepsForTransferUnit()
-    | BuildStepsForPlaceUnit()
+    | BuildExecutionBlockForPickBlock()
+    | BuildExecutionBlockForScanBlock()
+    | BuildExecutionBlockForTransferBlock()
+    | BuildExecutionBlockForPlaceBlock()
     v
 std::vector<robot_process_platform::core::Action> actions
 */
@@ -278,46 +276,49 @@ robot_process_platform::plugin::ProcessPlan PalletizingTemplate::BuildProcessPla
             throw std::runtime_error("Box point group is missing required handle points.");
         }
 
-        robot_process_platform::plugin::ProcessUnitPlan pick_unit_plan("pick_unit");
-        pick_unit_plan.unit_parameters["box_index"] = std::to_string(box_index);
-        pick_unit_plan.unit_parameters["source_pose"] = pick_pose;
-        pick_unit_plan.unit_parameters["pick_lift_pose"] = pick_lift_pose;
-        pick_unit_plan.unit_parameters["box_length_mm"] = task_parameters.box_length_mm;
-        pick_unit_plan.unit_parameters["box_width_mm"] = task_parameters.box_width_mm;
-        pick_unit_plan.unit_parameters["box_height_mm"] = task_parameters.box_height_mm;
-        pick_unit_plan.unit_parameters["pick_runtime_json"] = BuildUnitRuntimeJson(
+        robot_process_platform::plugin::BoxPlan box_plan(static_cast<int>(box_index));
+
+        robot_process_platform::plugin::ProcessBlockPlan pick_block_plan("pick_block");
+        pick_block_plan.block_parameters["box_index"] = std::to_string(box_index);
+        pick_block_plan.block_parameters["source_pose"] = pick_pose;
+        pick_block_plan.block_parameters["pick_lift_pose"] = pick_lift_pose;
+        pick_block_plan.block_parameters["box_length_mm"] = task_parameters.box_length_mm;
+        pick_block_plan.block_parameters["box_width_mm"] = task_parameters.box_width_mm;
+        pick_block_plan.block_parameters["box_height_mm"] = task_parameters.box_height_mm;
+        pick_block_plan.block_parameters["pick_runtime_json"] = BuildUnitRuntimeJson(
             {{"box_index", std::to_string(box_index)},
              {"pick_confirm_timeout_ms", "1000"}});
 
-        robot_process_platform::plugin::ProcessUnitPlan scan_unit_plan("scan_unit");
-        scan_unit_plan.unit_parameters["box_index"] = std::to_string(box_index);
-        scan_unit_plan.unit_parameters["scan_pose"] = scan_pose;
-        scan_unit_plan.unit_parameters["scan_runtime_json"] = BuildUnitRuntimeJson(
+        robot_process_platform::plugin::ProcessBlockPlan scan_block_plan("scan_block");
+        scan_block_plan.block_parameters["box_index"] = std::to_string(box_index);
+        scan_block_plan.block_parameters["scan_pose"] = scan_pose;
+        scan_block_plan.block_parameters["scan_runtime_json"] = BuildUnitRuntimeJson(
             {{"box_index", std::to_string(box_index)},
              {"pallet_direction", task_parameters.pallet_direction}});
 
-        robot_process_platform::plugin::ProcessUnitPlan transfer_unit_plan("transfer_unit");
-        transfer_unit_plan.unit_parameters["box_index"] = std::to_string(box_index);
-        transfer_unit_plan.unit_parameters["transfer_pose"] = transfer_pose;
-        transfer_unit_plan.unit_parameters["transfer_runtime_json"] = BuildUnitRuntimeJson(
+        robot_process_platform::plugin::ProcessBlockPlan transfer_block_plan("transfer_block");
+        transfer_block_plan.block_parameters["box_index"] = std::to_string(box_index);
+        transfer_block_plan.block_parameters["transfer_pose"] = transfer_pose;
+        transfer_block_plan.block_parameters["transfer_runtime_json"] = BuildUnitRuntimeJson(
             {{"box_index", std::to_string(box_index)},
              {"transfer_pose", transfer_pose}});
 
-        robot_process_platform::plugin::ProcessUnitPlan place_unit_plan("place_unit");
-        place_unit_plan.unit_parameters["box_index"] = std::to_string(box_index);
-        place_unit_plan.unit_parameters["target_pose"] = place_pose;
-        place_unit_plan.unit_parameters["place_lift_pose"] = place_lift_pose;
-        place_unit_plan.unit_parameters["box_length_mm"] = task_parameters.box_length_mm;
-        place_unit_plan.unit_parameters["box_width_mm"] = task_parameters.box_width_mm;
-        place_unit_plan.unit_parameters["box_height_mm"] = task_parameters.box_height_mm;
-        place_unit_plan.unit_parameters["place_runtime_json"] = BuildUnitRuntimeJson(
+        robot_process_platform::plugin::ProcessBlockPlan place_block_plan("place_block");
+        place_block_plan.block_parameters["box_index"] = std::to_string(box_index);
+        place_block_plan.block_parameters["target_pose"] = place_pose;
+        place_block_plan.block_parameters["place_lift_pose"] = place_lift_pose;
+        place_block_plan.block_parameters["box_length_mm"] = task_parameters.box_length_mm;
+        place_block_plan.block_parameters["box_width_mm"] = task_parameters.box_width_mm;
+        place_block_plan.block_parameters["box_height_mm"] = task_parameters.box_height_mm;
+        place_block_plan.block_parameters["place_runtime_json"] = BuildUnitRuntimeJson(
             {{"box_index", std::to_string(box_index)},
              {"place_release_timeout_ms", "1000"}});
 
-        process_plan.process_units.push_back(pick_unit_plan);
-        process_plan.process_units.push_back(scan_unit_plan);
-        process_plan.process_units.push_back(transfer_unit_plan);
-        process_plan.process_units.push_back(place_unit_plan);
+        box_plan.process_blocks.push_back(pick_block_plan);
+        box_plan.process_blocks.push_back(scan_block_plan);
+        box_plan.process_blocks.push_back(transfer_block_plan);
+        box_plan.process_blocks.push_back(place_block_plan);
+        process_plan.box_plans.push_back(box_plan);
     }
 
     return process_plan;
@@ -328,168 +329,155 @@ robot_process_platform::core::Task PalletizingTemplate::BuildTaskFromPlan(
 {
     robot_process_platform::core::Task task(process_plan.task_id, process_plan.template_name);
 
-    // BuildTaskFromPlan 只负责收集每个工艺单元展开后的 Step，
-    // 不在这里直接拼接 Action。
-    for (const auto& process_unit_plan : process_plan.process_units)
+    // BuildTaskFromPlan 只负责收集每个工艺块展开后的连续执行块，
+    // 不在这里重新计算箱子级工艺语义。
+    for (const auto& box_plan : process_plan.box_plans)
     {
-        const std::vector<robot_process_platform::core::Step> steps_for_unit =
-            BuildStepsFromProcessUnit(process_unit_plan);
-
-        for (const auto& step : steps_for_unit)
+        for (const auto& process_block_plan : box_plan.process_blocks)
         {
-            task.steps.push_back(step);
+            task.execution_blocks.push_back(BuildExecutionBlockFromProcessBlock(process_block_plan));
         }
     }
 
     return task;
 }
 
-std::vector<robot_process_platform::core::Step> PalletizingTemplate::BuildStepsFromProcessUnit(
-    const robot_process_platform::plugin::ProcessUnitPlan& process_unit_plan) const
+robot_process_platform::core::ExecutionBlock PalletizingTemplate::BuildExecutionBlockFromProcessBlock(
+    const robot_process_platform::plugin::ProcessBlockPlan& process_block_plan) const
 {
-    if (process_unit_plan.unit_name == "pick_unit")
+    if (process_block_plan.block_name == "pick_block")
     {
-        return BuildStepsForPickUnit(process_unit_plan);
+        return BuildExecutionBlockForPickBlock(process_block_plan);
     }
 
-    if (process_unit_plan.unit_name == "scan_unit")
+    if (process_block_plan.block_name == "scan_block")
     {
-        return BuildStepsForScanUnit(process_unit_plan);
+        return BuildExecutionBlockForScanBlock(process_block_plan);
     }
 
-    if (process_unit_plan.unit_name == "transfer_unit")
+    if (process_block_plan.block_name == "transfer_block")
     {
-        return BuildStepsForTransferUnit(process_unit_plan);
+        return BuildExecutionBlockForTransferBlock(process_block_plan);
     }
 
-    if (process_unit_plan.unit_name == "place_unit")
+    if (process_block_plan.block_name == "place_block")
     {
-        return BuildStepsForPlaceUnit(process_unit_plan);
+        return BuildExecutionBlockForPlaceBlock(process_block_plan);
     }
 
-    throw std::runtime_error("Unsupported process unit: " + process_unit_plan.unit_name);
+    throw std::runtime_error("Unsupported process block: " + process_block_plan.block_name);
 }
 
-std::vector<robot_process_platform::core::Step> PalletizingTemplate::BuildStepsForPickUnit(
-    const robot_process_platform::plugin::ProcessUnitPlan& process_unit_plan) const
+robot_process_platform::core::ExecutionBlock PalletizingTemplate::BuildExecutionBlockForPickBlock(
+    const robot_process_platform::plugin::ProcessBlockPlan& process_block_plan) const
 {
-    std::vector<robot_process_platform::core::Step> steps;
+    robot_process_platform::core::ExecutionBlock execution_block(
+        "PickBlock",
+        "box",
+        std::stoi(process_block_plan.block_parameters.at("box_index")));
+    execution_block.process_block_name = process_block_plan.block_name;
 
-    robot_process_platform::core::Step descend_to_pick_step("DescendToPickPoint");
-    descend_to_pick_step.actions.push_back(
+    execution_block.actions.push_back(
         robot_process_platform::core::Action(
             "MoveToSourcePose",
             robot_process_platform::core::TaskActionType::MoveJoint,
-            {{"target_pose", process_unit_plan.unit_parameters.at("source_pose")}},
+            {{"target_pose", process_block_plan.block_parameters.at("source_pose")}},
             3000));
-    steps.push_back(descend_to_pick_step);
-
-    robot_process_platform::core::Step enable_vacuum_step("EnableVacuum");
-    enable_vacuum_step.actions.push_back(
+    execution_block.actions.push_back(
         robot_process_platform::core::Action(
             "EnableGripper",
             robot_process_platform::core::TaskActionType::SetDigitalOutput,
             {{"signal_name", "gripper_close"}, {"signal_value", "true"}},
             1000));
-    steps.push_back(enable_vacuum_step);
-
-    robot_process_platform::core::Step lift_after_pick_step("LiftAfterPick");
-    lift_after_pick_step.actions.push_back(
+    execution_block.actions.push_back(
         robot_process_platform::core::Action(
             "LiftFromSourcePose",
             robot_process_platform::core::TaskActionType::MoveLinear,
-            {{"target_pose", process_unit_plan.unit_parameters.at("pick_lift_pose")}},
+            {{"target_pose", process_block_plan.block_parameters.at("pick_lift_pose")}},
             3000));
-    steps.push_back(lift_after_pick_step);
 
-    return steps;
+    return execution_block;
 }
 
-std::vector<robot_process_platform::core::Step> PalletizingTemplate::BuildStepsForScanUnit(
-    const robot_process_platform::plugin::ProcessUnitPlan& process_unit_plan) const
+robot_process_platform::core::ExecutionBlock PalletizingTemplate::BuildExecutionBlockForScanBlock(
+    const robot_process_platform::plugin::ProcessBlockPlan& process_block_plan) const
 {
-    std::vector<robot_process_platform::core::Step> steps;
+    robot_process_platform::core::ExecutionBlock execution_block(
+        "ScanBlock",
+        "box",
+        std::stoi(process_block_plan.block_parameters.at("box_index")));
+    execution_block.process_block_name = process_block_plan.block_name;
 
-    robot_process_platform::core::Step move_to_scan_step("MoveToScanPose");
-    move_to_scan_step.actions.push_back(
+    execution_block.actions.push_back(
         robot_process_platform::core::Action(
             "MoveToScanPose",
             robot_process_platform::core::TaskActionType::MoveJoint,
-            {{"target_pose", process_unit_plan.unit_parameters.at("scan_pose")}},
+            {{"target_pose", process_block_plan.block_parameters.at("scan_pose")}},
             3000));
-    steps.push_back(move_to_scan_step);
-
-    robot_process_platform::core::Step trigger_scan_step("TriggerScanner");
-    trigger_scan_step.actions.push_back(
+    execution_block.actions.push_back(
         robot_process_platform::core::Action(
             "TriggerScanner",
             robot_process_platform::core::TaskActionType::SetDigitalOutput,
             {{"signal_name", "scanner_trigger"}, {"signal_value", "true"}},
             1000));
-    steps.push_back(trigger_scan_step);
-
-    robot_process_platform::core::Step wait_scan_result_step("WaitScanResult");
-    wait_scan_result_step.actions.push_back(
+    execution_block.actions.push_back(
         robot_process_platform::core::Action(
             "WaitForScanResult",
             robot_process_platform::core::TaskActionType::WaitDigitalInput,
             {{"signal_name", "scanner_done"}, {"expected_value", "true"}},
             3000));
-    steps.push_back(wait_scan_result_step);
 
-    return steps;
+    return execution_block;
 }
 
-std::vector<robot_process_platform::core::Step> PalletizingTemplate::BuildStepsForTransferUnit(
-    const robot_process_platform::plugin::ProcessUnitPlan& process_unit_plan) const
+robot_process_platform::core::ExecutionBlock PalletizingTemplate::BuildExecutionBlockForTransferBlock(
+    const robot_process_platform::plugin::ProcessBlockPlan& process_block_plan) const
 {
-    std::vector<robot_process_platform::core::Step> steps;
+    robot_process_platform::core::ExecutionBlock execution_block(
+        "TransferBlock",
+        "box",
+        std::stoi(process_block_plan.block_parameters.at("box_index")));
+    execution_block.process_block_name = process_block_plan.block_name;
 
-    robot_process_platform::core::Step move_to_transfer_step("MoveToTransferPose");
-    move_to_transfer_step.actions.push_back(
+    execution_block.actions.push_back(
         robot_process_platform::core::Action(
             "MoveToTransferPose",
             robot_process_platform::core::TaskActionType::MoveJoint,
-            {{"target_pose", process_unit_plan.unit_parameters.at("transfer_pose")}},
+            {{"target_pose", process_block_plan.block_parameters.at("transfer_pose")}},
             3000));
-    steps.push_back(move_to_transfer_step);
 
-    return steps;
+    return execution_block;
 }
 
-std::vector<robot_process_platform::core::Step> PalletizingTemplate::BuildStepsForPlaceUnit(
-    const robot_process_platform::plugin::ProcessUnitPlan& process_unit_plan) const
+robot_process_platform::core::ExecutionBlock PalletizingTemplate::BuildExecutionBlockForPlaceBlock(
+    const robot_process_platform::plugin::ProcessBlockPlan& process_block_plan) const
 {
-    std::vector<robot_process_platform::core::Step> steps;
+    robot_process_platform::core::ExecutionBlock execution_block(
+        "PlaceBlock",
+        "box",
+        std::stoi(process_block_plan.block_parameters.at("box_index")));
+    execution_block.process_block_name = process_block_plan.block_name;
 
-    robot_process_platform::core::Step descend_to_place_step("DescendToPlacePoint");
-    descend_to_place_step.actions.push_back(
+    execution_block.actions.push_back(
         robot_process_platform::core::Action(
             "MoveToTargetPose",
             robot_process_platform::core::TaskActionType::MoveLinear,
-            {{"target_pose", process_unit_plan.unit_parameters.at("target_pose")}},
+            {{"target_pose", process_block_plan.block_parameters.at("target_pose")}},
             3000));
-    steps.push_back(descend_to_place_step);
-
-    robot_process_platform::core::Step disable_vacuum_step("DisableVacuum");
-    disable_vacuum_step.actions.push_back(
+    execution_block.actions.push_back(
         robot_process_platform::core::Action(
             "DisableGripper",
             robot_process_platform::core::TaskActionType::SetDigitalOutput,
             {{"signal_name", "gripper_close"}, {"signal_value", "false"}},
             1000));
-    steps.push_back(disable_vacuum_step);
-
-    robot_process_platform::core::Step lift_after_place_step("LiftAfterPlace");
-    lift_after_place_step.actions.push_back(
+    execution_block.actions.push_back(
         robot_process_platform::core::Action(
             "LiftFromTargetPose",
             robot_process_platform::core::TaskActionType::MoveLinear,
-            {{"target_pose", process_unit_plan.unit_parameters.at("place_lift_pose")}},
+            {{"target_pose", process_block_plan.block_parameters.at("place_lift_pose")}},
             3000));
-    steps.push_back(lift_after_place_step);
 
-    return steps;
+    return execution_block;
 }
 
 PalletizingTaskParameters PalletizingTemplate::ParseTaskParametersFromJson(

@@ -9,7 +9,7 @@
 - 模板必须独立于平台主体源码
 - 模板必须实现 `ITemplate`
 - 模板必须遵循 `Plan -> BuildTask` 两阶段结构
-- 模板最终必须输出统一的 `Task / Step / Action` 模型
+- 模板最终必须输出统一的 `Task / ExecutionBlock / Action` 模型
 - 模板必须通过 `.so` 导出接口接入 `TemplateManager`
 
 ## 当前文件
@@ -25,7 +25,8 @@
 
 ## 当前示例逻辑
 
-当前示例已经固定模板主流程和插件边界，并先对接了 `tests/aa.json` 的一版输入解析。
+当前示例已经固定模板主流程和插件边界，并先对接了
+`tests/97582da7-be0d-4139-81cc-8d0775bdd49e.json` 的一版输入解析。
 
 1. `CreateTask`
    接收一段上下文 JSON 字符串
@@ -34,15 +35,16 @@
    读取 `uuid`、`palletDirection`、`box`、`teachPoint.boxPoint`、`pallet.upperLeft`、`pallet.layer`
 
 3. `Plan`
-   负责生成 `pick / scan / transfer / place` 四个工艺单元
+   负责按箱子生成 `BoxPlan`，并在每个箱子下规划 `pick / scan / transfer / place` 四个工艺块
 
 4. `BuildTask`
-   负责把 `ProcessPlan` 展开为统一 `Task`
+   负责把 `ProcessPlan` 展开为统一 `Task / ExecutionBlock / Action`
 
 ## 当前参数策略
 
 调用者只向平台传模板名和一段 JSON。
-JSON 结构由模板自己定义和解析。当前示例先支持 `tests/aa.json` 的核心字段，并基于这些字段推导取料位、扫码位、过渡位和放料位。
+JSON 结构由模板自己定义和解析。当前示例先支持
+`tests/97582da7-be0d-4139-81cc-8d0775bdd49e.json` 的核心字段，并基于这些字段按箱子推导取料位、扫码位、过渡位和放料位。
 
 后续其他模板也应沿用这个模式，把模板专属参数尽早收敛为强类型对象。
 

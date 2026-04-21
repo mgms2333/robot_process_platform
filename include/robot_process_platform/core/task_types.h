@@ -8,22 +8,22 @@
 namespace robot_process_platform::core
 {
 
-// 本文件定义运行时最基础的静态任务模型。
+// 本文件定义执行端最基础的静态任务模型。
 //
-// 三者之间的包含关系如下：
+// 当前执行端对象层级如下：
 // 1. Task 表示一次完整任务实例
-// 2. Task 内包含多个 Step
-// 3. Step 内包含多个 Action
+// 2. Task 内包含多个 ExecutionBlock
+// 3. ExecutionBlock 内包含多个 Action
 //
 // 可以理解为：
-// Task = 一次完整工艺
-// Step = 工艺中的语义步骤
-// Action = 步骤中的原子执行动作
+// Task = 一次完整执行任务
+// ExecutionBlock = 一组应连续执行的动作块
+// Action = 执行器直接消费的原子动作
 //
-// 运行时推进时，通常按以下粒度工作：
-// 1. 调度器以 Step 作为工艺语义边界推进
-// 2. 执行器以 Action 作为最小执行单元处理
-// 3. 模板层最终必须把具体工艺展开成 Task / Step / Action 统一模型
+// 模板层的规划对象与执行层对象并不相同：
+// 1. 模板层更关注 BoxPlan / ProcessBlockPlan 等工艺语义
+// 2. Build 阶段负责把工艺语义对象展开为 ExecutionBlock / Action
+// 3. 执行层只消费统一的 Task / ExecutionBlock / Action
 
 // TaskActionType 定义运行时可识别的基础动作类型。
 // 模板层最终必须把工艺语义展开为这些统一动作，供执行链消费。
@@ -60,9 +60,9 @@ struct Action
     std::int32_t timeout_ms;
 };
 
-// Step 表示具有工艺语义的一组动作，例如 Pick、Place、Lift。
-// 调度器推进时以 Step 作为语义边界，以 Action 作为执行边界。
-// 一个 Step 会包含多个按顺序执行的 Action。
+// Step 是更细的可读执行步骤占位对象。
+// 当前阶段 Task 不再直接消费 Step，而是直接消费 ExecutionBlock。
+// 保留该结构是为了后续在 block 内继续表达细粒度步骤时有稳定落点。
 struct Step
 {
     explicit Step(const std::string& step_name_value);
@@ -77,9 +77,33 @@ struct Step
     int priority = 0;
 };
 
-// Task 表示一次完整工艺任务实例。
-// 模板的输出结果最终必须落到 Task / Step / Action 统一模型上。
-// 一个 Task 会按顺序组织多个 Step，从而描述完整执行流程。
+// ExecutionBlock 表示执行层的最小调度块。
+// 一个 block 内部的动作应连续执行，避免每个 Action 单独调度造成明显停顿。
+struct ExecutionBlock
+{
+    ExecutionBlock(const std::string& block_name_value,
+                   const std::string& semantic_type_value,
+                   int semantic_index_value);
+
+    // block_name 用于日志、调试和界面展示。
+    std::string block_name;
+
+    // semantic_type 表示该 block 对应的模板语义类型，例如 box / seam / unit。
+    std::string semantic_type;
+
+    // semantic_index 表示该语义对象在模板规划结果中的序号。
+    int semantic_index;
+
+    // process_block_name 记录该 block 来源于哪个模板工艺块，例如 pick_block。
+    std::string process_block_name;
+
+    // actions 保存该 block 下需要连续执行的动作列表。
+    std::vector<Action> actions;
+};
+
+// Task 表示一次完整执行任务实例。
+// 模板 Build 的输出结果最终必须落到 Task / ExecutionBlock / Action 统一模型上。
+// 一个 Task 会按顺序组织多个 ExecutionBlock，从而描述完整执行流程。
 struct Task
 {
     Task(const std::string& task_id_value, const std::string& template_name_value);
@@ -90,8 +114,8 @@ struct Task
     // template_name 记录任务由哪个模板生成。
     std::string template_name;
 
-    // steps 保存完整的任务步骤序列。
-    std::vector<Step> steps;
+    // execution_blocks 保存完整的执行块序列。
+    std::vector<ExecutionBlock> execution_blocks;
 };
 
 std::string ToString(TaskActionType action_type);

@@ -17,6 +17,14 @@ Step::Step(const std::string& step_name_value)
     :
     step_name(step_name_value) {}
 
+ExecutionBlock::ExecutionBlock(const std::string& block_name_value,
+                               const std::string& semantic_type_value,
+                               int semantic_index_value)
+    :
+    block_name(block_name_value),
+    semantic_type(semantic_type_value),
+    semantic_index(semantic_index_value) {}
+
 Task::Task(const std::string& task_id_value, const std::string& template_name_value)
     :
     task_id(task_id_value),

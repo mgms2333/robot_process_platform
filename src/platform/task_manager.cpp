@@ -6,6 +6,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "robot_process_platform/platform/logger.h"
+
 namespace robot_process_platform::platform
 {
 
@@ -34,19 +36,22 @@ std::string SerializeTaskToJson(const robot_process_platform::core::Task& task)
     output_stream << "{\n";
     output_stream << "  \"task_id\": \"" << EscapeJsonString(task.task_id) << "\",\n";
     output_stream << "  \"template_name\": \"" << EscapeJsonString(task.template_name) << "\",\n";
-    output_stream << "  \"steps\": [\n";
+    output_stream << "  \"execution_blocks\": [\n";
 
-    for (std::size_t step_index = 0; step_index < task.steps.size(); ++step_index)
+    for (std::size_t block_index = 0; block_index < task.execution_blocks.size(); ++block_index)
     {
-        const auto& step = task.steps[step_index];
+        const auto& execution_block = task.execution_blocks[block_index];
         output_stream << "    {\n";
-        output_stream << "      \"step_name\": \"" << EscapeJsonString(step.step_name) << "\",\n";
-        output_stream << "      \"priority\": " << step.priority << ",\n";
+        output_stream << "      \"block_name\": \"" << EscapeJsonString(execution_block.block_name) << "\",\n";
+        output_stream << "      \"semantic_type\": \"" << EscapeJsonString(execution_block.semantic_type) << "\",\n";
+        output_stream << "      \"semantic_index\": " << execution_block.semantic_index << ",\n";
+        output_stream << "      \"process_block_name\": \""
+                      << EscapeJsonString(execution_block.process_block_name) << "\",\n";
         output_stream << "      \"actions\": [\n";
 
-        for (std::size_t action_index = 0; action_index < step.actions.size(); ++action_index)
+        for (std::size_t action_index = 0; action_index < execution_block.actions.size(); ++action_index)
         {
-            const auto& action = step.actions[action_index];
+            const auto& action = execution_block.actions[action_index];
             output_stream << "        {\n";
             output_stream << "          \"action_name\": \"" << EscapeJsonString(action.action_name) << "\",\n";
             output_stream << "          \"action_type\": \"" << EscapeJsonString(robot_process_platform::core::ToString(action.action_type)) << "\",\n";
@@ -69,7 +74,7 @@ std::string SerializeTaskToJson(const robot_process_platform::core::Task& task)
             output_stream << "}\n";
             output_stream << "        }";
 
-            if (action_index + 1 < step.actions.size())
+            if (action_index + 1 < execution_block.actions.size())
             {
                 output_stream << ",";
             }
@@ -80,7 +85,7 @@ std::string SerializeTaskToJson(const robot_process_platform::core::Task& task)
         output_stream << "      ]\n";
         output_stream << "    }";
 
-        if (step_index + 1 < task.steps.size())
+        if (block_index + 1 < task.execution_blocks.size())
         {
             output_stream << ",";
         }
@@ -99,31 +104,67 @@ TaskManager::TaskManager(TemplateManager& template_manager_value)
     :
     template_manager(template_manager_value) {}
 
-std::string TaskManager::CreateTask(const std::string& template_name,
-                                    const std::string& task_context_json,
-                                    const std::string& local_directory_path) const
+robot_process_platform::core::Task TaskManager::CreateAndSaveTask(
+    const std::string& template_name,
+    const std::string& task_context_json,
+    const std::string& local_directory_path) const
 {
+    Logger::GetInstance().LogI(
+        "TaskManager",
+        "Creating task by template: " + template_name);
+
     std::filesystem::create_directories(local_directory_path);
 
     TemplateManager::TemplatePtr template_instance = template_manager.CreateTemplate(template_name);
-    robot_process_platform::core::Task created_task =
-        template_instance->CreateTask(task_context_json);
+    robot_process_platform::core::Task created_task = template_instance->CreateTask(task_context_json);
     created_task.task_id = GenerateTaskId(template_name);
 
-    std::ofstream output_file(BuildTaskFilePath(created_task.task_id, local_directory_path));
+    const std::string task_file_path = BuildTaskFilePath(created_task.task_id, local_directory_path);
+    std::ofstream output_file(task_file_path);
     if (!output_file.is_open())
     {
+        Logger::GetInstance().LogE(
+            "TaskManager",
+            "Failed to create task file: " + created_task.task_id);
         throw std::runtime_error("Failed to create task file for task: " + created_task.task_id);
     }
 
     output_file << SerializeTaskToJson(created_task);
+    Logger::GetInstance().LogI(
+        "TaskManager",
+        "Task created and saved: " + created_task.task_id + " -> " + task_file_path);
+    return created_task;
+}
+
+std::string TaskManager::CreateTask(const std::string& template_name,
+                                    const std::string& task_context_json,
+                                    const std::string& local_directory_path) const
+{
+    const robot_process_platform::core::Task created_task =
+        CreateAndSaveTask(template_name, task_context_json, local_directory_path);
     return created_task.task_id;
 }
 
 bool TaskManager::DeleteTask(const std::string& task_id,
                              const std::string& local_directory_path) const
 {
-    return std::filesystem::remove(BuildTaskFilePath(task_id, local_directory_path));
+    const bool remove_success =
+        std::filesystem::remove(BuildTaskFilePath(task_id, local_directory_path));
+
+    if (remove_success)
+    {
+        Logger::GetInstance().LogI(
+            "TaskManager",
+            "Task file deleted: " + task_id);
+    }
+    else
+    {
+        Logger::GetInstance().LogW(
+            "TaskManager",
+            "Task file not found when deleting: " + task_id);
+    }
+
+    return remove_success;
 }
 
 std::string TaskManager::GenerateTaskId(const std::string& template_name) const

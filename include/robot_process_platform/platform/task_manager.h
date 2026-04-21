@@ -13,6 +13,10 @@ class TaskManager
 public:
     explicit TaskManager(TemplateManager& template_manager_value);
 
+    core::Task CreateAndSaveTask(const std::string& template_name,
+                                 const std::string& task_context_json,
+                                 const std::string& local_directory_path) const;
+
     std::string CreateTask(const std::string& template_name,
                            const std::string& task_context_json,
                            const std::string& local_directory_path) const;

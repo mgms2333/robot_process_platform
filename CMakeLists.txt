@@ -9,8 +9,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_library(robot_process_platform_core
     src/core/task_types.cpp
     src/plugin/template_types.cpp
+    src/platform/logger.cpp
     src/platform/task_manager.cpp
     src/platform/template_manager.cpp
+    src/robot/robot_interface.cpp
+    src/robot/mock_robot.cpp
+    src/runtime/execution_context.cpp
+    src/runtime/task_runner.cpp
 )
 
 target_include_directories(robot_process_platform_core

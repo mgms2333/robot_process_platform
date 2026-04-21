@@ -3,9 +3,13 @@
 namespace robot_process_platform::plugin
 {
 
-ProcessUnitPlan::ProcessUnitPlan(const std::string& unit_name_value)
+ProcessBlockPlan::ProcessBlockPlan(const std::string& block_name_value)
     :
-    unit_name(unit_name_value) {}
+    block_name(block_name_value) {}
+
+BoxPlan::BoxPlan(int box_index_value)
+    :
+    box_index(box_index_value) {}
 
 ProcessPlan::ProcessPlan(const std::string& task_id_value,
                          const std::string& template_name_value,

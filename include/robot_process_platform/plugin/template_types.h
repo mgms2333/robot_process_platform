@@ -9,17 +9,30 @@
 namespace robot_process_platform::plugin
 {
 
-// ProcessUnitPlan 表示规划阶段中的一个工艺处理单元。
-// 它只描述工艺单元级信息，不直接描述底层 Action。
-struct ProcessUnitPlan
+// ProcessBlockPlan 表示规划阶段中的一个工艺处理块。
+// 它只描述工艺块级信息，不直接描述底层 Action。
+struct ProcessBlockPlan
 {
-    explicit ProcessUnitPlan(const std::string& unit_name_value);
+    explicit ProcessBlockPlan(const std::string& block_name_value);
 
-    // unit_name 表示工艺单元名称。
-    std::string unit_name;
+    // block_name 表示工艺块名称。
+    std::string block_name;
 
-    // unit_parameters 保存该工艺单元的规划参数。
-    std::map<std::string, std::string> unit_parameters;
+    // block_parameters 保存该工艺块的规划参数。
+    std::map<std::string, std::string> block_parameters;
+};
+
+// BoxPlan 表示码垛模板中的一个箱子级规划对象。
+// 这类对象属于模板层工艺语义，不属于平台执行层的通用概念。
+struct BoxPlan
+{
+    explicit BoxPlan(int box_index_value);
+
+    // box_index 表示当前箱子在整垛任务中的顺序编号。
+    int box_index;
+
+    // process_blocks 保存该箱子对应的工艺块规划结果。
+    std::vector<ProcessBlockPlan> process_blocks;
 };
 
 // ProcessPlan 表示模板规划阶段输出的完整中间计划。
@@ -39,8 +52,8 @@ struct ProcessPlan
     // source_context_json 记录模板创建任务时收到的原始上下文 JSON。
     std::string source_context_json;
 
-    // process_units 保存所有规划出的工艺单元。
-    std::vector<ProcessUnitPlan> process_units;
+    // box_plans 保存所有箱子级规划对象。
+    std::vector<BoxPlan> box_plans;
 };
 
 // ITemplate 定义所有工艺模板必须遵守的统一接口。
