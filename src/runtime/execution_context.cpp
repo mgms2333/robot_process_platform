@@ -5,17 +5,27 @@ namespace robot_process_platform::runtime
 
 ExecutionContext::ExecutionContext() = default;
 
-std::string ToString(ExecutionStatus execution_status)
+std::string ToString(RuntimeState runtime_state)
 {
-    switch (execution_status)
+    switch (runtime_state)
     {
-        case ExecutionStatus::Idle:
+        case RuntimeState::Idle:
             return "Idle";
-        case ExecutionStatus::Running:
+        case RuntimeState::Ready:
+            return "Ready";
+        case RuntimeState::Running:
             return "Running";
-        case ExecutionStatus::Completed:
+        case RuntimeState::Paused:
+            return "Paused";
+        case RuntimeState::Fault:
+            return "Fault";
+        case RuntimeState::EmergencyStop:
+            return "EmergencyStop";
+        case RuntimeState::Stopped:
+            return "Stopped";
+        case RuntimeState::Completed:
             return "Completed";
-        case ExecutionStatus::Failed:
+        case RuntimeState::Failed:
             return "Failed";
     }
 

@@ -2,14 +2,15 @@
 
 #include <vector>
 
-#include "robot_process_platform/robot/robot_interface.h"
+#include "robot_process_platform/device/interfaces/robot_interface.h"
 
-namespace robot_process_platform::robot
+namespace robot_process_platform::device
 {
 
-// MockRobot 用于在没有真实机器人 SDK 时验证任务执行链。
-// 它只记录收到的命令，并始终返回成功结果。
-class MockRobot : public IRobot
+// HyRobot 是当前阶段的占位机器人实现。
+// 现在它仍然使用 mock 风格行为验证执行链，
+// 后续可在此基础上逐步替换成真实的 hy 机器人对接代码。
+class HyRobot : public IRobot
 {
 public:
     RobotCommandResult MoveJoint(
@@ -40,4 +41,4 @@ private:
     std::vector<std::string> execution_log;
 };
 
-}  // namespace robot_process_platform::robot
+}  // namespace robot_process_platform::device

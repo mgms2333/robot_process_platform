@@ -7,14 +7,20 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(robot_process_platform_core
+    src/core/json_utils.cpp
     src/core/task_types.cpp
+    src/device/interfaces/camera_interface.cpp
+    src/device/interfaces/robot_interface.cpp
+    src/device/robot/hy_robot.cpp
     src/plugin/template_types.cpp
     src/platform/logger.cpp
     src/platform/task_manager.cpp
     src/platform/template_manager.cpp
-    src/robot/robot_interface.cpp
-    src/robot/mock_robot.cpp
+    src/runtime/block_executor.cpp
+    src/runtime/block_queue.cpp
+    src/runtime/block_scheduler.cpp
     src/runtime/execution_context.cpp
+    src/runtime/state_machine.cpp
     src/runtime/task_runner.cpp
 )
 

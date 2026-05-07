@@ -1,32 +1,32 @@
-#include "robot_process_platform/robot/mock_robot.h"
+#include "robot_process_platform/device/robot/hy_robot.h"
 
 #include <sstream>
 
-namespace robot_process_platform::robot
+namespace robot_process_platform::device
 {
 
-RobotCommandResult MockRobot::MoveJoint(
+RobotCommandResult HyRobot::MoveJoint(
     const std::map<std::string, std::string>& action_parameters)
 {
     execution_log.push_back(BuildLogEntry("MoveJoint", action_parameters, 0));
     return RobotCommandResult(true, "MoveJoint executed.");
 }
 
-RobotCommandResult MockRobot::MoveLinear(
+RobotCommandResult HyRobot::MoveLinear(
     const std::map<std::string, std::string>& action_parameters)
 {
     execution_log.push_back(BuildLogEntry("MoveLinear", action_parameters, 0));
     return RobotCommandResult(true, "MoveLinear executed.");
 }
 
-RobotCommandResult MockRobot::SetDigitalOutput(
+RobotCommandResult HyRobot::SetDigitalOutput(
     const std::map<std::string, std::string>& action_parameters)
 {
     execution_log.push_back(BuildLogEntry("SetDigitalOutput", action_parameters, 0));
     return RobotCommandResult(true, "SetDigitalOutput executed.");
 }
 
-RobotCommandResult MockRobot::WaitDigitalInput(
+RobotCommandResult HyRobot::WaitDigitalInput(
     const std::map<std::string, std::string>& action_parameters,
     int timeout_ms)
 {
@@ -34,7 +34,7 @@ RobotCommandResult MockRobot::WaitDigitalInput(
     return RobotCommandResult(true, "WaitDigitalInput executed.");
 }
 
-RobotCommandResult MockRobot::Delay(
+RobotCommandResult HyRobot::Delay(
     const std::map<std::string, std::string>& action_parameters,
     int timeout_ms)
 {
@@ -42,12 +42,12 @@ RobotCommandResult MockRobot::Delay(
     return RobotCommandResult(true, "Delay executed.");
 }
 
-const std::vector<std::string>& MockRobot::GetExecutionLog() const
+const std::vector<std::string>& HyRobot::GetExecutionLog() const
 {
     return execution_log;
 }
 
-std::string MockRobot::BuildLogEntry(
+std::string HyRobot::BuildLogEntry(
     const std::string& command_name,
     const std::map<std::string, std::string>& action_parameters,
     int timeout_ms) const
@@ -79,4 +79,4 @@ std::string MockRobot::BuildLogEntry(
     return output_stream.str();
 }
 
-}  // namespace robot_process_platform::robot
+}  // namespace robot_process_platform::device

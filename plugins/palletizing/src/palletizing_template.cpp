@@ -1,10 +1,11 @@
 #include "palletizing/palletizing_template.h"
 
 #include <array>
-#include <cctype>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
+
+#include "robot_process_platform/core/json_utils.h"
 
 /*
 当前文件主流程说明
@@ -483,157 +484,22 @@ robot_process_platform::core::ExecutionBlock PalletizingTemplate::BuildExecution
 PalletizingTaskParameters PalletizingTemplate::ParseTaskParametersFromJson(
     const std::string& task_context_json) const
 {
-    // 当前这里故意保持为一个模板专用的大解析函数，
-    // 方便后续直接按业务需要继续改，不再拆很多零散 helper。
-
-    const auto extract_string_value =
-        [&](const std::string& text, const std::string& key) -> std::string
-        {
-            const std::string key_token = "\"" + key + "\"";
-            const std::size_t key_position = text.find(key_token);
-            if (key_position == std::string::npos)
-            {
-                throw std::runtime_error("Missing string key: " + key);
-            }
-
-            const std::size_t colon_position = text.find(':', key_position);
-            const std::size_t first_quote = text.find('"', colon_position + 1);
-            const std::size_t second_quote = text.find('"', first_quote + 1);
-            if (colon_position == std::string::npos || first_quote == std::string::npos || second_quote == std::string::npos)
-            {
-                throw std::runtime_error("Invalid string value for key: " + key);
-            }
-
-            return text.substr(first_quote + 1, second_quote - first_quote - 1);
-        };
-
-    const auto extract_number_value =
-        [&](const std::string& text, const std::string& key) -> std::string
-        {
-            const std::string key_token = "\"" + key + "\"";
-            const std::size_t key_position = text.find(key_token);
-            if (key_position == std::string::npos)
-            {
-                throw std::runtime_error("Missing number key: " + key);
-            }
-
-            const std::size_t colon_position = text.find(':', key_position);
-            if (colon_position == std::string::npos)
-            {
-                throw std::runtime_error("Invalid number value for key: " + key);
-            }
-
-            std::size_t value_begin = colon_position + 1;
-            while (value_begin < text.size() && std::isspace(static_cast<unsigned char>(text[value_begin])))
-            {
-                ++value_begin;
-            }
-
-            std::size_t value_end = value_begin;
-            while (value_end < text.size())
-            {
-                const char current_character = text[value_end];
-                if ((current_character >= '0' && current_character <= '9') ||
-                    current_character == '-' || current_character == '.')
-                {
-                    ++value_end;
-                    continue;
-                }
-
-                break;
-            }
-
-            if (value_begin == value_end)
-            {
-                throw std::runtime_error("Empty number value for key: " + key);
-            }
-
-            return text.substr(value_begin, value_end - value_begin);
-        };
-
-    const auto extract_object_text =
-        [&](const std::string& text, const std::string& object_key) -> std::string
-        {
-            const std::string key_token = "\"" + object_key + "\"";
-            const std::size_t key_position = text.find(key_token);
-            if (key_position == std::string::npos)
-            {
-                throw std::runtime_error("Missing object key: " + object_key);
-            }
-
-            const std::size_t object_begin = text.find('{', key_position);
-            if (object_begin == std::string::npos)
-            {
-                throw std::runtime_error("Object begin not found for key: " + object_key);
-            }
-
-            int depth = 0;
-            for (std::size_t index = object_begin; index < text.size(); ++index)
-            {
-                if (text[index] == '{')
-                {
-                    ++depth;
-                }
-                else if (text[index] == '}')
-                {
-                    --depth;
-                    if (depth == 0)
-                    {
-                        return text.substr(object_begin, index - object_begin + 1);
-                    }
-                }
-            }
-
-            throw std::runtime_error("Object end not found for key: " + object_key);
-        };
-
-    const auto extract_array_text =
-        [&](const std::string& text, const std::string& array_key) -> std::string
-        {
-            const std::string key_token = "\"" + array_key + "\"";
-            const std::size_t key_position = text.find(key_token);
-            if (key_position == std::string::npos)
-            {
-                throw std::runtime_error("Missing array key: " + array_key);
-            }
-
-            const std::size_t array_begin = text.find('[', key_position);
-            if (array_begin == std::string::npos)
-            {
-                throw std::runtime_error("Array begin not found for key: " + array_key);
-            }
-
-            int depth = 0;
-            for (std::size_t index = array_begin; index < text.size(); ++index)
-            {
-                if (text[index] == '[')
-                {
-                    ++depth;
-                }
-                else if (text[index] == ']')
-                {
-                    --depth;
-                    if (depth == 0)
-                    {
-                        return text.substr(array_begin, index - array_begin + 1);
-                    }
-                }
-            }
-
-            throw std::runtime_error("Array end not found for key: " + array_key);
-        };
-
-    const std::string box_object_text = extract_object_text(task_context_json, "box");
-    const std::string left_point_models_json = extract_array_text(task_context_json, "leftPointModels");
-    const std::string box_height_mm = extract_number_value(box_object_text, "height");
+    const robot_process_platform::core::json::JsonValue root_value =
+        robot_process_platform::core::json::JsonParser(task_context_json).Parse();
+    const robot_process_platform::core::json::JsonValue& programme_value =
+        robot_process_platform::core::json::GetObjectField(root_value, "programmeVo");
+    const robot_process_platform::core::json::JsonValue& box_object =
+        robot_process_platform::core::json::GetObjectField(programme_value, "box");
+    const robot_process_platform::core::json::JsonValue& left_point_models =
+        robot_process_platform::core::json::GetObjectField(root_value, "leftPointModels");
 
     return PalletizingTaskParameters(
-        extract_string_value(task_context_json, "uuid"),
-        extract_string_value(task_context_json, "palletDirection"),
-        left_point_models_json,
-        extract_number_value(box_object_text, "length"),
-        extract_number_value(box_object_text, "width"),
-        box_height_mm);
+        robot_process_platform::core::json::GetStringField(root_value, "uuid"),
+        robot_process_platform::core::json::GetStringField(programme_value, "palletDirection"),
+        robot_process_platform::core::json::SerializeJsonValue(left_point_models),
+        robot_process_platform::core::json::GetNumberFieldAsString(box_object, "length"),
+        robot_process_platform::core::json::GetNumberFieldAsString(box_object, "width"),
+        robot_process_platform::core::json::GetNumberFieldAsString(box_object, "height"));
 }
 
 // 文件底部保留扩展空间：

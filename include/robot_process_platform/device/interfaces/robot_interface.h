@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 
-namespace robot_process_platform::robot
+namespace robot_process_platform::device
 {
 
 // RobotCommandResult 表示一次机器人或 IO 命令执行结果。
@@ -40,4 +40,4 @@ public:
         int timeout_ms) = 0;
 };
 
-}  // namespace robot_process_platform::robot
+}  // namespace robot_process_platform::device
