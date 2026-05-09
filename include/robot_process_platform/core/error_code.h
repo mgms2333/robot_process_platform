@@ -14,13 +14,30 @@ enum class ErrorCode
     InternalError,
 
     TemplateNotFound,
+    TemplateLoadFailed,
+    TemplateSymbolMissing,
+    TemplateUnloadFailed,
     TemplateCreateFailed,
 
     TaskCreateFailed,
     TaskDeserializeFailed,
     TaskSaveFailed,
     TaskDeleteFailed,
-    TaskFileNotFound
+    TaskFileNotFound,
+
+    RuntimeNoLoadedTask,
+    RuntimeInvalidStartBlockIndex,
+    RuntimeInvalidStartActionIndex,
+    RuntimeInvalidCompletedTaskStartAction,
+    RuntimeFailedToEnterCompletedState,
+    RuntimeFailedToAcceptBlockCompleted,
+    RuntimeQueueShouldBeEmpty,
+    RuntimeQueuePushFailed,
+    RuntimeQueuePeekFailed,
+    RuntimeBlockExecutionFailed,
+    RuntimeStateEventRejected,
+    RuntimeServiceNotRunning,
+    RuntimeCommandMissingTask
 };
 
 inline std::string ToString(ErrorCode error_code)
@@ -35,6 +52,12 @@ inline std::string ToString(ErrorCode error_code)
             return "InternalError";
         case ErrorCode::TemplateNotFound:
             return "TemplateNotFound";
+        case ErrorCode::TemplateLoadFailed:
+            return "TemplateLoadFailed";
+        case ErrorCode::TemplateSymbolMissing:
+            return "TemplateSymbolMissing";
+        case ErrorCode::TemplateUnloadFailed:
+            return "TemplateUnloadFailed";
         case ErrorCode::TemplateCreateFailed:
             return "TemplateCreateFailed";
         case ErrorCode::TaskCreateFailed:
@@ -47,6 +70,32 @@ inline std::string ToString(ErrorCode error_code)
             return "TaskDeleteFailed";
         case ErrorCode::TaskFileNotFound:
             return "TaskFileNotFound";
+        case ErrorCode::RuntimeNoLoadedTask:
+            return "RuntimeNoLoadedTask";
+        case ErrorCode::RuntimeInvalidStartBlockIndex:
+            return "RuntimeInvalidStartBlockIndex";
+        case ErrorCode::RuntimeInvalidStartActionIndex:
+            return "RuntimeInvalidStartActionIndex";
+        case ErrorCode::RuntimeInvalidCompletedTaskStartAction:
+            return "RuntimeInvalidCompletedTaskStartAction";
+        case ErrorCode::RuntimeFailedToEnterCompletedState:
+            return "RuntimeFailedToEnterCompletedState";
+        case ErrorCode::RuntimeFailedToAcceptBlockCompleted:
+            return "RuntimeFailedToAcceptBlockCompleted";
+        case ErrorCode::RuntimeQueueShouldBeEmpty:
+            return "RuntimeQueueShouldBeEmpty";
+        case ErrorCode::RuntimeQueuePushFailed:
+            return "RuntimeQueuePushFailed";
+        case ErrorCode::RuntimeQueuePeekFailed:
+            return "RuntimeQueuePeekFailed";
+        case ErrorCode::RuntimeBlockExecutionFailed:
+            return "RuntimeBlockExecutionFailed";
+        case ErrorCode::RuntimeStateEventRejected:
+            return "RuntimeStateEventRejected";
+        case ErrorCode::RuntimeServiceNotRunning:
+            return "RuntimeServiceNotRunning";
+        case ErrorCode::RuntimeCommandMissingTask:
+            return "RuntimeCommandMissingTask";
     }
 
     return "Unknown";

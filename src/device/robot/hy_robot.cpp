@@ -2,6 +2,8 @@
 
 #include <sstream>
 
+#include "robot_process_platform/platform/logger.h"
+
 namespace robot_process_platform::device
 {
 
@@ -9,6 +11,7 @@ RobotCommandResult HyRobot::MoveJoint(
     const std::map<std::string, std::string>& action_parameters)
 {
     execution_log.push_back(BuildLogEntry("MoveJoint", action_parameters, 0));
+    platform::Logger::GetInstance().LogD("HyRobot", "MoveJoint executed.");
     return RobotCommandResult(true, "MoveJoint executed.");
 }
 
@@ -16,6 +19,7 @@ RobotCommandResult HyRobot::MoveLinear(
     const std::map<std::string, std::string>& action_parameters)
 {
     execution_log.push_back(BuildLogEntry("MoveLinear", action_parameters, 0));
+    platform::Logger::GetInstance().LogD("HyRobot", "MoveLinear executed.");
     return RobotCommandResult(true, "MoveLinear executed.");
 }
 
@@ -23,6 +27,7 @@ RobotCommandResult HyRobot::SetDigitalOutput(
     const std::map<std::string, std::string>& action_parameters)
 {
     execution_log.push_back(BuildLogEntry("SetDigitalOutput", action_parameters, 0));
+    platform::Logger::GetInstance().LogD("HyRobot", "SetDigitalOutput executed.");
     return RobotCommandResult(true, "SetDigitalOutput executed.");
 }
 
@@ -31,6 +36,7 @@ RobotCommandResult HyRobot::WaitDigitalInput(
     int timeout_ms)
 {
     execution_log.push_back(BuildLogEntry("WaitDigitalInput", action_parameters, timeout_ms));
+    platform::Logger::GetInstance().LogD("HyRobot", "WaitDigitalInput executed.");
     return RobotCommandResult(true, "WaitDigitalInput executed.");
 }
 
@@ -39,6 +45,7 @@ RobotCommandResult HyRobot::Delay(
     int timeout_ms)
 {
     execution_log.push_back(BuildLogEntry("Delay", action_parameters, timeout_ms));
+    platform::Logger::GetInstance().LogD("HyRobot", "Delay executed.");
     return RobotCommandResult(true, "Delay executed.");
 }
 

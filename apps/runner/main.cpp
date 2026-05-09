@@ -36,9 +36,7 @@ int main()
     const std::string log_output_directory = "./tests/logs";
 
     robot_process_platform::platform::Logger::GetInstance().Initialize(log_output_directory, true);
-    robot_process_platform::platform::Logger::GetInstance().LogI(
-        "Runner",
-        "Runner started.");
+    robot_process_platform::platform::Logger::GetInstance().LogI("Runner", "Runner started.");
 
     robot_process_platform::platform::TemplateManager template_manager;
     robot_process_platform::platform::TaskManager task_manager(template_manager);
@@ -46,20 +44,28 @@ int main()
     robot_process_platform::runtime::TaskRunner task_runner(hy_robot);
     robot_process_platform::runtime::ExecutionContext execution_context;
 
-    const bool load_success = template_manager.LoadTemplateLibrary(template_library_path);
-    if (!load_success)
+    const robot_process_platform::core::Status load_template_status =
+        template_manager.LoadTemplateLibrary(template_library_path);
+    if (!load_template_status.Ok())
     {
-        robot_process_platform::platform::Logger::GetInstance().LogE(
-            "Runner",
-            "Failed to load template library.");
+        robot_process_platform::platform::Logger::GetInstance().LogE("Runner", "Failed to load template library.");
         std::cout << "failed_to_load_template" << '\n';
+        std::cout << "error_code="
+                  << robot_process_platform::core::ToString(load_template_status.code) << '\n';
+        if (!load_template_status.message.empty())
+        {
+            std::cout << "error_message=" << load_template_status.message << '\n';
+        }
         robot_process_platform::platform::Logger::GetInstance().Shutdown();
         return 1;
     }
+    robot_process_platform::platform::Logger::GetInstance().LogI("Runner", "Template library loaded.");
 
+    robot_process_platform::platform::Logger::GetInstance().LogI("Runner", "Reading task context json: " + task_context_file_path);
     const std::string task_context_json = ReadAllText(task_context_file_path);
     if (task_context_json.empty())
     {
+        robot_process_platform::platform::Logger::GetInstance().LogE("Runner", "Failed to read task context json.");
         std::cout << "failed_to_read_task_context_json" << '\n';
         robot_process_platform::platform::Logger::GetInstance().Shutdown();
         return 1;
@@ -79,6 +85,7 @@ int main()
         robot_process_platform::platform::Logger::GetInstance().Shutdown();
         return 1;
     }
+    robot_process_platform::platform::Logger::GetInstance().LogI("Runner", "Task created successfully: " + create_task_result.value->task_id);
 
     const robot_process_platform::core::Task& created_task = create_task_result.value.value();
 
@@ -96,6 +103,7 @@ int main()
         robot_process_platform::platform::Logger::GetInstance().Shutdown();
         return 1;
     }
+    robot_process_platform::platform::Logger::GetInstance().LogI("Runner", "Task loaded successfully: " + load_task_result.value->task_id);
 
     const robot_process_platform::core::Task& loaded_task = load_task_result.value.value();
 
@@ -104,6 +112,7 @@ int main()
     {
         run_success = task_runner.Start(execution_context);
     }
+    robot_process_platform::platform::Logger::GetInstance().LogI("Runner", "Task execution loop started.");
 
     while (run_success &&
            execution_context.runtime_state == robot_process_platform::runtime::RuntimeState::Running)
@@ -125,8 +134,14 @@ int main()
 
     if (!execution_context.last_error.empty())
     {
+        std::cout << "last_error_code="
+                  << robot_process_platform::core::ToString(execution_context.last_error_code) << '\n';
         std::cout << "last_error=" << execution_context.last_error << '\n';
     }
+    robot_process_platform::platform::Logger::GetInstance().LogI(
+        "Runner",
+        "Task execution loop finished: runtime_state=" +
+            robot_process_platform::runtime::ToString(execution_context.runtime_state));
 
     std::cout << "hy_robot_log_begin" << '\n';
     for (const auto& execution_log_entry : hy_robot.GetExecutionLog())
@@ -134,9 +149,7 @@ int main()
         std::cout << execution_log_entry << '\n';
     }
     std::cout << "hy_robot_log_end" << '\n';
-    robot_process_platform::platform::Logger::GetInstance().LogI(
-        "Runner",
-        "Runner finished.");
+    robot_process_platform::platform::Logger::GetInstance().LogI("Runner", "Runner finished.");
     robot_process_platform::platform::Logger::GetInstance().Shutdown();
     return run_success ? 0 : 1;
 }

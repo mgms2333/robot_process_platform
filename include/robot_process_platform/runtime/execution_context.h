@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "robot_process_platform/core/error_code.h"
+
 namespace robot_process_platform::runtime
 {
 
@@ -26,12 +28,12 @@ enum class RuntimeState
 struct ExecutionContext
 {
     ExecutionContext();
-
     RuntimeState runtime_state = RuntimeState::Idle;
     std::string task_id;
     std::string template_name;
     int current_block_index = -1;
     int current_action_index = -1;
+    core::ErrorCode last_error_code = core::ErrorCode::Ok;
     std::string last_error;
 };
 

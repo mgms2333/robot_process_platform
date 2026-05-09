@@ -26,6 +26,7 @@ bool BlockExecutor::ExecuteQueuedBlock(const QueuedBlock& queued_block,
     if (start_action_index < 0 ||
         start_action_index >= static_cast<int>(queued_block.execution_block.actions.size()))
     {
+        execution_context.last_error_code = core::ErrorCode::RuntimeInvalidStartActionIndex;
         execution_context.last_error = "invalid_start_action_index";
         return false;
     }
@@ -61,7 +62,14 @@ bool BlockExecutor::ExecuteOneAction(const QueuedBlock& queued_block,
     if (action_index < 0 ||
         action_index >= static_cast<int>(queued_block.execution_block.actions.size()))
     {
+        execution_context.last_error_code = core::ErrorCode::RuntimeInvalidStartActionIndex;
         execution_context.last_error = "invalid_action_index";
+        platform::Logger::GetInstance().LogE("BlockExecutor",
+                                             "ExecuteOneAction failed: error_code=" +
+                                                 core::ToString(execution_context.last_error_code) +
+                                                 " error=" + execution_context.last_error +
+                                                 " block_index=" + std::to_string(queued_block.block_index) +
+                                                 " action_index=" + std::to_string(action_index));
         return false;
     }
 
@@ -79,11 +87,10 @@ bool BlockExecutor::ExecuteAction(const core::Action& action,
     execution_context.current_block_index = block_index;
     execution_context.current_action_index = action_index;
 
-    platform::Logger::GetInstance().LogD(
-        "BlockExecutor",
-        "Running action index=" + std::to_string(action_index) +
-            " name=" + action.action_name +
-            " type=" + core::ToString(action.action_type));
+    platform::Logger::GetInstance().LogD("BlockExecutor",
+                                         "Running action index=" + std::to_string(action_index) +
+                                             " name=" + action.action_name +
+                                             " type=" + core::ToString(action.action_type));
 
     device::RobotCommandResult command_result(false, "Unsupported action.");
 
@@ -108,16 +115,13 @@ bool BlockExecutor::ExecuteAction(const core::Action& action,
 
     if (!command_result.success)
     {
+        execution_context.last_error_code = core::ErrorCode::RuntimeBlockExecutionFailed;
         execution_context.last_error = command_result.message;
-        platform::Logger::GetInstance().LogE(
-            "BlockExecutor",
-            "Action failed: " + action.action_name + " error=" + command_result.message);
+        platform::Logger::GetInstance().LogE("BlockExecutor", "Action failed: " + action.action_name + " error=" + command_result.message);
         return false;
     }
 
-    platform::Logger::GetInstance().LogD(
-        "BlockExecutor",
-        "Action completed: " + action.action_name);
+    platform::Logger::GetInstance().LogD("BlockExecutor", "Action completed: " + action.action_name);
     return true;
 }
 

@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "robot_process_platform/core/error_code.h"
 #include "robot_process_platform/plugin/template_types.h"
 
 namespace robot_process_platform::platform
@@ -20,9 +21,9 @@ public:
     TemplateManager() = default;
     ~TemplateManager();
 
-    bool LoadTemplateLibrary(const std::string& shared_library_path);
-    bool UnloadTemplate(const std::string& template_name);
-    TemplatePtr CreateTemplate(const std::string& template_name) const;
+    core::Status LoadTemplateLibrary(const std::string& shared_library_path);
+    core::Status UnloadTemplate(const std::string& template_name);
+    core::Result<TemplatePtr> CreateTemplate(const std::string& template_name) const;
 
 private:
     struct LoadedTemplateLibrary

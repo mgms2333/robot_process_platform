@@ -90,6 +90,7 @@ bool StateMachine::HandleEvent(StateEvent event, ExecutionContext& execution_con
             if (event == StateEvent::FaultResetRequested)
             {
                 execution_context.runtime_state = RuntimeState::Ready;
+                execution_context.last_error_code = core::ErrorCode::Ok;
                 execution_context.last_error.clear();
                 return true;
             }
@@ -103,6 +104,7 @@ bool StateMachine::HandleEvent(StateEvent event, ExecutionContext& execution_con
             if (event == StateEvent::FaultResetRequested)
             {
                 execution_context.runtime_state = RuntimeState::Ready;
+                execution_context.last_error_code = core::ErrorCode::Ok;
                 execution_context.last_error.clear();
                 return true;
             }

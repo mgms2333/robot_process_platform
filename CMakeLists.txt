@@ -20,6 +20,7 @@ add_library(robot_process_platform_core
     src/runtime/block_queue.cpp
     src/runtime/block_scheduler.cpp
     src/runtime/execution_context.cpp
+    src/runtime/runtime_service.cpp
     src/runtime/state_machine.cpp
     src/runtime/task_runner.cpp
 )

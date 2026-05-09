@@ -195,20 +195,29 @@ robot_process_platform::core::Result<robot_process_platform::core::Task> TaskMan
 {
     if (template_name.empty())
     {
+        Logger::GetInstance().LogE("TaskManager", "CreateAndSaveTask failed: template_name_is_empty");
         return core::MakeErrorResult<core::Task>(
             core::ErrorCode::InvalidArgument,
             "template_name_is_empty");
     }
 
-    Logger::GetInstance().LogI(
-        "TaskManager",
-        "Creating task by template: " + template_name);
+    Logger::GetInstance().LogI("TaskManager", "Creating task by template: " + template_name);
 
     try
     {
         std::filesystem::create_directories(local_directory_path);
 
-        TemplateManager::TemplatePtr template_instance = template_manager.CreateTemplate(template_name);
+        core::Result<TemplateManager::TemplatePtr> create_template_result =
+            template_manager.CreateTemplate(template_name);
+        if (!create_template_result.Ok())
+        {
+            Logger::GetInstance().LogE("TaskManager",
+                                       "CreateAndSaveTask failed: error_code=" + core::ToString(create_template_result.code) +
+                                           " error=" + create_template_result.message);
+            return core::MakeErrorResult<core::Task>(create_template_result.code, create_template_result.message);
+        }
+
+        TemplateManager::TemplatePtr template_instance = std::move(*create_template_result.value);
         robot_process_platform::core::Task created_task = template_instance->CreateTask(task_context_json);
         created_task.task_id = GenerateTaskId(template_name);
 
@@ -226,28 +235,18 @@ robot_process_platform::core::Result<robot_process_platform::core::Task> TaskMan
         }
 
         output_file << SerializeTaskToJson(created_task);
-        Logger::GetInstance().LogI(
-            "TaskManager",
-            "Task created and saved: " + created_task.task_id + " -> " + task_file_path);
+        Logger::GetInstance().LogI("TaskManager", "Task created and saved: " + created_task.task_id + " -> " + task_file_path);
         return core::MakeSuccessResult<core::Task>(std::move(created_task));
     }
     catch (const std::runtime_error& exception)
     {
         const std::string exception_message = exception.what();
-        const core::ErrorCode error_code =
-            exception_message.find("Template is not loaded") != std::string::npos
-                ? core::ErrorCode::TemplateNotFound
-                : core::ErrorCode::TaskCreateFailed;
-        Logger::GetInstance().LogE(
-            "TaskManager",
-            "CreateAndSaveTask failed: " + exception_message);
-        return core::MakeErrorResult<core::Task>(error_code, exception_message);
+        Logger::GetInstance().LogE("TaskManager", "CreateAndSaveTask failed: " + exception_message);
+        return core::MakeErrorResult<core::Task>(core::ErrorCode::TaskCreateFailed, exception_message);
     }
     catch (const std::exception& exception)
     {
-        Logger::GetInstance().LogE(
-            "TaskManager",
-            "CreateAndSaveTask failed: " + std::string(exception.what()));
+        Logger::GetInstance().LogE("TaskManager", "CreateAndSaveTask failed: " + std::string(exception.what()));
         return core::MakeErrorResult<core::Task>(
             core::ErrorCode::InternalError,
             exception.what());
@@ -275,15 +274,14 @@ robot_process_platform::core::Result<robot_process_platform::core::Task> TaskMan
 {
     if (task_id.empty())
     {
+        Logger::GetInstance().LogE("TaskManager", "LoadTask failed: task_id_is_empty");
         return core::MakeErrorResult<core::Task>(
             core::ErrorCode::InvalidArgument,
             "task_id_is_empty");
     }
 
     const std::string task_file_path = BuildTaskFilePath(task_id, local_directory_path);
-    Logger::GetInstance().LogI(
-        "TaskManager",
-        "Loading task file: " + task_file_path);
+    Logger::GetInstance().LogI("TaskManager", "Loading task file: " + task_file_path);
 
     try
     {
@@ -291,9 +289,7 @@ robot_process_platform::core::Result<robot_process_platform::core::Task> TaskMan
         robot_process_platform::core::Task task = DeserializeTaskFromJson(task_json);
         robot_process_platform::core::Result<robot_process_platform::core::Task> load_result =
             core::MakeSuccessResult<core::Task>(std::move(task));
-        Logger::GetInstance().LogI(
-            "TaskManager",
-            "Task loaded successfully: " + load_result.value->task_id);
+        Logger::GetInstance().LogI("TaskManager", "Task loaded successfully: " + load_result.value->task_id);
         return load_result;
     }
     catch (const std::runtime_error& exception)
@@ -303,16 +299,12 @@ robot_process_platform::core::Result<robot_process_platform::core::Task> TaskMan
             exception_message.find("failed_to_open_file") != std::string::npos
                 ? core::ErrorCode::TaskFileNotFound
                 : core::ErrorCode::TaskDeserializeFailed;
-        Logger::GetInstance().LogE(
-            "TaskManager",
-            "LoadTask failed: " + exception_message);
+        Logger::GetInstance().LogE("TaskManager", "LoadTask failed: " + exception_message);
         return core::MakeErrorResult<core::Task>(error_code, exception_message);
     }
     catch (const std::exception& exception)
     {
-        Logger::GetInstance().LogE(
-            "TaskManager",
-            "LoadTask failed: " + std::string(exception.what()));
+        Logger::GetInstance().LogE("TaskManager", "LoadTask failed: " + std::string(exception.what()));
         return core::MakeErrorResult<core::Task>(
             core::ErrorCode::InternalError,
             exception.what());
@@ -323,6 +315,8 @@ robot_process_platform::core::Status TaskManager::DeleteTask(
     const std::string& task_id,
     const std::string& local_directory_path) const
 {
+    Logger::GetInstance().LogI("TaskManager", "Deleting task file by task_id: " + task_id);
+
     try
     {
         const bool remove_success =
@@ -330,24 +324,18 @@ robot_process_platform::core::Status TaskManager::DeleteTask(
 
         if (remove_success)
         {
-            Logger::GetInstance().LogI(
-                "TaskManager",
-                "Task file deleted: " + task_id);
+            Logger::GetInstance().LogI("TaskManager", "Task file deleted: " + task_id);
             return core::MakeSuccessStatus();
         }
 
-        Logger::GetInstance().LogW(
-            "TaskManager",
-            "Task file not found when deleting: " + task_id);
+        Logger::GetInstance().LogW("TaskManager", "Task file not found when deleting: " + task_id);
         return core::MakeErrorStatus(
             core::ErrorCode::TaskFileNotFound,
             "task_file_not_found: " + task_id);
     }
     catch (const std::exception& exception)
     {
-        Logger::GetInstance().LogE(
-            "TaskManager",
-            "DeleteTask failed: " + std::string(exception.what()));
+        Logger::GetInstance().LogE("TaskManager", "DeleteTask failed: " + std::string(exception.what()));
         return core::MakeErrorStatus(
             core::ErrorCode::TaskDeleteFailed,
             exception.what());
