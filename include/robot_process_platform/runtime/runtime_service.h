@@ -66,6 +66,7 @@ private:
 
     TaskRunner task_runner;
     ExecutionContext execution_context;
+    std::optional<core::Task> loaded_task_storage;
 
     std::queue<RuntimeCommand> command_queue;
     mutable std::mutex command_lock;

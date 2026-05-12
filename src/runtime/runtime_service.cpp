@@ -215,7 +215,8 @@ void RuntimeService::ProcessRuntimeCommand(const RuntimeCommand& command)
 
             platform::Logger::GetInstance().LogI("RuntimeService",
                                                  "Processing LoadTask command: task_id=" + command.task->task_id);
-            task_runner.LoadTask(*command.task,
+            loaded_task_storage = command.task;
+            task_runner.LoadTask(*loaded_task_storage,
                                  execution_context,
                                  command.start_block_index,
                                  command.start_action_index);
@@ -235,6 +236,7 @@ void RuntimeService::ProcessRuntimeCommand(const RuntimeCommand& command)
         case RuntimeCommandType::StopTask:
             platform::Logger::GetInstance().LogI("RuntimeService", "Processing StopTask command.");
             task_runner.Stop(execution_context);
+            loaded_task_storage.reset();
             return;
         case RuntimeCommandType::EmergencyStop:
             platform::Logger::GetInstance().LogW("RuntimeService", "Processing EmergencyStop command.");
@@ -246,6 +248,7 @@ void RuntimeService::ProcessRuntimeCommand(const RuntimeCommand& command)
             return;
         case RuntimeCommandType::Shutdown:
             platform::Logger::GetInstance().LogI("RuntimeService", "Processing Shutdown command.");
+            loaded_task_storage.reset();
             return;
     }
 }

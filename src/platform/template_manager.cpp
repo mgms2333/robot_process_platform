@@ -1,5 +1,6 @@
 #include "robot_process_platform/platform/template_manager.h"
 
+#include <algorithm>
 #include <dlfcn.h>
 #include <stdexcept>
 
@@ -62,6 +63,7 @@ core::Status TemplateManager::LoadTemplateLibrary(const std::string& shared_libr
     loaded_template_library.library_handle = library_handle;
     loaded_template_library.create_template = create_template;
     loaded_template_library.destroy_template = destroy_template;
+    loaded_template_library.shared_library_path = shared_library_path;
     loaded_templates[template_name] = loaded_template_library;
 
     Logger::GetInstance().LogI("TemplateManager", "Template library loaded successfully: " + template_name);
@@ -112,6 +114,28 @@ core::Result<TemplateManager::TemplatePtr> TemplateManager::CreateTemplate(const
     Logger::GetInstance().LogD("TemplateManager", "Template instance created: " + template_name);
     return core::MakeSuccessResult<TemplatePtr>(
         TemplatePtr(raw_template, loaded_template_it->second.destroy_template));
+}
+
+std::vector<TemplateManager::TemplateInfo> TemplateManager::GetLoadedTemplates() const
+{
+    std::vector<TemplateInfo> loaded_template_infos;
+    loaded_template_infos.reserve(loaded_templates.size());
+
+    for (const auto& loaded_template_entry : loaded_templates)
+    {
+        TemplateInfo template_info;
+        template_info.template_name = loaded_template_entry.first;
+        template_info.shared_library_path = loaded_template_entry.second.shared_library_path;
+        loaded_template_infos.push_back(std::move(template_info));
+    }
+
+    std::sort(loaded_template_infos.begin(),
+              loaded_template_infos.end(),
+              [](const TemplateInfo& left, const TemplateInfo& right)
+              {
+                  return left.template_name < right.template_name;
+              });
+    return loaded_template_infos;
 }
 
 }  // namespace robot_process_platform::platform
