@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/robot_process_platform_runner.dir/apps/runner/main.cpp.o -o robot_process_platform_runner  -Wl,-rpath,/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/Linux librobot_process_platform_core.a /tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/Linux/libHR_Pro.so 

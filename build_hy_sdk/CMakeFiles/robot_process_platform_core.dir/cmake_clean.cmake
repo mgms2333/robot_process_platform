@@ -1,0 +1,41 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/robot_process_platform_core.dir/src/core/json_utils.cpp.o"
+  "CMakeFiles/robot_process_platform_core.dir/src/core/json_utils.cpp.o.d"
+  "CMakeFiles/robot_process_platform_core.dir/src/core/task_types.cpp.o"
+  "CMakeFiles/robot_process_platform_core.dir/src/core/task_types.cpp.o.d"
+  "CMakeFiles/robot_process_platform_core.dir/src/device/interfaces/camera_interface.cpp.o"
+  "CMakeFiles/robot_process_platform_core.dir/src/device/interfaces/camera_interface.cpp.o.d"
+  "CMakeFiles/robot_process_platform_core.dir/src/device/interfaces/robot_interface.cpp.o"
+  "CMakeFiles/robot_process_platform_core.dir/src/device/interfaces/robot_interface.cpp.o.d"
+  "CMakeFiles/robot_process_platform_core.dir/src/device/robot/hy_robot.cpp.o"
+  "CMakeFiles/robot_process_platform_core.dir/src/device/robot/hy_robot.cpp.o.d"
+  "CMakeFiles/robot_process_platform_core.dir/src/platform/logger.cpp.o"
+  "CMakeFiles/robot_process_platform_core.dir/src/platform/logger.cpp.o.d"
+  "CMakeFiles/robot_process_platform_core.dir/src/platform/task_manager.cpp.o"
+  "CMakeFiles/robot_process_platform_core.dir/src/platform/task_manager.cpp.o.d"
+  "CMakeFiles/robot_process_platform_core.dir/src/platform/template_manager.cpp.o"
+  "CMakeFiles/robot_process_platform_core.dir/src/platform/template_manager.cpp.o.d"
+  "CMakeFiles/robot_process_platform_core.dir/src/plugin/template_types.cpp.o"
+  "CMakeFiles/robot_process_platform_core.dir/src/plugin/template_types.cpp.o.d"
+  "CMakeFiles/robot_process_platform_core.dir/src/runtime/block_executor.cpp.o"
+  "CMakeFiles/robot_process_platform_core.dir/src/runtime/block_executor.cpp.o.d"
+  "CMakeFiles/robot_process_platform_core.dir/src/runtime/block_queue.cpp.o"
+  "CMakeFiles/robot_process_platform_core.dir/src/runtime/block_queue.cpp.o.d"
+  "CMakeFiles/robot_process_platform_core.dir/src/runtime/block_scheduler.cpp.o"
+  "CMakeFiles/robot_process_platform_core.dir/src/runtime/block_scheduler.cpp.o.d"
+  "CMakeFiles/robot_process_platform_core.dir/src/runtime/execution_context.cpp.o"
+  "CMakeFiles/robot_process_platform_core.dir/src/runtime/execution_context.cpp.o.d"
+  "CMakeFiles/robot_process_platform_core.dir/src/runtime/runtime_service.cpp.o"
+  "CMakeFiles/robot_process_platform_core.dir/src/runtime/runtime_service.cpp.o.d"
+  "CMakeFiles/robot_process_platform_core.dir/src/runtime/state_machine.cpp.o"
+  "CMakeFiles/robot_process_platform_core.dir/src/runtime/state_machine.cpp.o.d"
+  "CMakeFiles/robot_process_platform_core.dir/src/runtime/task_runner.cpp.o"
+  "CMakeFiles/robot_process_platform_core.dir/src/runtime/task_runner.cpp.o.d"
+  "librobot_process_platform_core.a"
+  "librobot_process_platform_core.pdb"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/robot_process_platform_core.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

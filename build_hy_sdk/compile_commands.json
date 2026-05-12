@@ -1,0 +1,97 @@
+[
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -DROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1 -I/home/hans/codes_dyh/robot_process_platform/include -I/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_core.dir/src/core/json_utils.cpp.o -c /home/hans/codes_dyh/robot_process_platform/src/core/json_utils.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/src/core/json_utils.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -DROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1 -I/home/hans/codes_dyh/robot_process_platform/include -I/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_core.dir/src/core/task_types.cpp.o -c /home/hans/codes_dyh/robot_process_platform/src/core/task_types.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/src/core/task_types.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -DROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1 -I/home/hans/codes_dyh/robot_process_platform/include -I/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_core.dir/src/device/interfaces/camera_interface.cpp.o -c /home/hans/codes_dyh/robot_process_platform/src/device/interfaces/camera_interface.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/src/device/interfaces/camera_interface.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -DROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1 -I/home/hans/codes_dyh/robot_process_platform/include -I/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_core.dir/src/device/interfaces/robot_interface.cpp.o -c /home/hans/codes_dyh/robot_process_platform/src/device/interfaces/robot_interface.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/src/device/interfaces/robot_interface.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -DROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1 -I/home/hans/codes_dyh/robot_process_platform/include -I/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_core.dir/src/device/robot/hy_robot.cpp.o -c /home/hans/codes_dyh/robot_process_platform/src/device/robot/hy_robot.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/src/device/robot/hy_robot.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -DROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1 -I/home/hans/codes_dyh/robot_process_platform/include -I/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_core.dir/src/plugin/template_types.cpp.o -c /home/hans/codes_dyh/robot_process_platform/src/plugin/template_types.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/src/plugin/template_types.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -DROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1 -I/home/hans/codes_dyh/robot_process_platform/include -I/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_core.dir/src/platform/logger.cpp.o -c /home/hans/codes_dyh/robot_process_platform/src/platform/logger.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/src/platform/logger.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -DROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1 -I/home/hans/codes_dyh/robot_process_platform/include -I/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_core.dir/src/platform/task_manager.cpp.o -c /home/hans/codes_dyh/robot_process_platform/src/platform/task_manager.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/src/platform/task_manager.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -DROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1 -I/home/hans/codes_dyh/robot_process_platform/include -I/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_core.dir/src/platform/template_manager.cpp.o -c /home/hans/codes_dyh/robot_process_platform/src/platform/template_manager.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/src/platform/template_manager.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -DROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1 -I/home/hans/codes_dyh/robot_process_platform/include -I/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_core.dir/src/runtime/block_executor.cpp.o -c /home/hans/codes_dyh/robot_process_platform/src/runtime/block_executor.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/src/runtime/block_executor.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -DROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1 -I/home/hans/codes_dyh/robot_process_platform/include -I/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_core.dir/src/runtime/block_queue.cpp.o -c /home/hans/codes_dyh/robot_process_platform/src/runtime/block_queue.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/src/runtime/block_queue.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -DROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1 -I/home/hans/codes_dyh/robot_process_platform/include -I/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_core.dir/src/runtime/block_scheduler.cpp.o -c /home/hans/codes_dyh/robot_process_platform/src/runtime/block_scheduler.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/src/runtime/block_scheduler.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -DROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1 -I/home/hans/codes_dyh/robot_process_platform/include -I/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_core.dir/src/runtime/execution_context.cpp.o -c /home/hans/codes_dyh/robot_process_platform/src/runtime/execution_context.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/src/runtime/execution_context.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -DROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1 -I/home/hans/codes_dyh/robot_process_platform/include -I/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_core.dir/src/runtime/runtime_service.cpp.o -c /home/hans/codes_dyh/robot_process_platform/src/runtime/runtime_service.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/src/runtime/runtime_service.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -DROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1 -I/home/hans/codes_dyh/robot_process_platform/include -I/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_core.dir/src/runtime/state_machine.cpp.o -c /home/hans/codes_dyh/robot_process_platform/src/runtime/state_machine.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/src/runtime/state_machine.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -DROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1 -I/home/hans/codes_dyh/robot_process_platform/include -I/tmp/huayan_sdk/HuayanRobotLibrary-C++-V1.0.15.0/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_core.dir/src/runtime/task_runner.cpp.o -c /home/hans/codes_dyh/robot_process_platform/src/runtime/task_runner.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/src/runtime/task_runner.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -Drobot_process_platform_palletizing_template_EXPORTS -I/home/hans/codes_dyh/robot_process_platform/include -I/home/hans/codes_dyh/robot_process_platform/plugins/palletizing/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_palletizing_template.dir/plugins/palletizing/src/palletizing_template.cpp.o -c /home/hans/codes_dyh/robot_process_platform/plugins/palletizing/src/palletizing_template.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/plugins/palletizing/src/palletizing_template.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++ -Drobot_process_platform_palletizing_template_EXPORTS -I/home/hans/codes_dyh/robot_process_platform/include -I/home/hans/codes_dyh/robot_process_platform/plugins/palletizing/include -fPIC -std=c++17 -o CMakeFiles/robot_process_platform_palletizing_template.dir/plugins/palletizing/src/palletizing_plugin_entry.cpp.o -c /home/hans/codes_dyh/robot_process_platform/plugins/palletizing/src/palletizing_plugin_entry.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/plugins/palletizing/src/palletizing_plugin_entry.cpp"
+},
+{
+  "directory": "/home/hans/codes_dyh/robot_process_platform/build_hy_sdk",
+  "command": "/usr/bin/c++  -I/home/hans/codes_dyh/robot_process_platform/include -std=c++17 -o CMakeFiles/robot_process_platform_runner.dir/apps/runner/main.cpp.o -c /home/hans/codes_dyh/robot_process_platform/apps/runner/main.cpp",
+  "file": "/home/hans/codes_dyh/robot_process_platform/apps/runner/main.cpp"
+}
+]

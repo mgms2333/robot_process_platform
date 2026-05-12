@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.22)
 project(robot_process_platform VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+option(ROBOT_PROCESS_PLATFORM_ENABLE_HYROBOT_SDK "Enable Huayan robot SDK integration." OFF)
+set(HYROBOT_SDK_ROOT "" CACHE PATH "Path to Huayan robot SDK root directory.")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -35,6 +37,31 @@ target_include_directories(robot_process_platform_core
 set_target_properties(robot_process_platform_core PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
+
+if(ROBOT_PROCESS_PLATFORM_ENABLE_HYROBOT_SDK)
+    if(NOT HYROBOT_SDK_ROOT)
+        message(FATAL_ERROR "HYROBOT_SDK_ROOT must be set when ROBOT_PROCESS_PLATFORM_ENABLE_HYROBOT_SDK=ON")
+    endif()
+
+    target_compile_definitions(robot_process_platform_core
+        PRIVATE
+            ROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK=1
+    )
+
+    target_include_directories(robot_process_platform_core
+        PRIVATE
+            ${HYROBOT_SDK_ROOT}/include
+    )
+
+    target_link_libraries(robot_process_platform_core
+        PRIVATE
+            ${HYROBOT_SDK_ROOT}/Linux/libHR_Pro.so
+    )
+
+    set_property(TARGET robot_process_platform_core
+        APPEND PROPERTY BUILD_RPATH ${HYROBOT_SDK_ROOT}/Linux
+    )
+endif()
 
 add_library(robot_process_platform_palletizing_template SHARED
     plugins/palletizing/src/palletizing_template.cpp
