@@ -25,6 +25,11 @@ enum class ErrorCode
     TaskDeleteFailed,
     TaskFileNotFound,
 
+    DeviceAlreadyRegistered,
+    DeviceNotFound,
+    DeviceActiveRobotNotSet,
+    DeviceActiveCameraNotSet,
+
     RuntimeNoLoadedTask,
     RuntimeInvalidStartBlockIndex,
     RuntimeInvalidStartActionIndex,
@@ -70,6 +75,14 @@ inline std::string ToString(ErrorCode error_code)
             return "TaskDeleteFailed";
         case ErrorCode::TaskFileNotFound:
             return "TaskFileNotFound";
+        case ErrorCode::DeviceAlreadyRegistered:
+            return "DeviceAlreadyRegistered";
+        case ErrorCode::DeviceNotFound:
+            return "DeviceNotFound";
+        case ErrorCode::DeviceActiveRobotNotSet:
+            return "DeviceActiveRobotNotSet";
+        case ErrorCode::DeviceActiveCameraNotSet:
+            return "DeviceActiveCameraNotSet";
         case ErrorCode::RuntimeNoLoadedTask:
             return "RuntimeNoLoadedTask";
         case ErrorCode::RuntimeInvalidStartBlockIndex:

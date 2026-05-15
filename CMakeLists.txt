@@ -17,7 +17,9 @@ add_library(robot_process_platform_core
     src/device/interfaces/robot_interface.cpp
     src/device/robot/hy_robot.cpp
     src/plugin/template_types.cpp
+    src/platform/device_manager.cpp
     src/platform/logger.cpp
+    src/platform/platform_service.cpp
     src/platform/task_manager.cpp
     src/platform/template_manager.cpp
     src/runtime/block_executor.cpp
