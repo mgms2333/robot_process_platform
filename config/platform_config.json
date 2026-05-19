@@ -1,0 +1,29 @@
+{
+  "devices": {
+    "active_robot": "hy_robot",
+    "robots": [
+      {
+        "name": "hy_robot",
+        "type": "hy_robot",
+        "config": {
+          "enable_sdk": false,
+          "auto_connect_controller": true,
+          "auto_electrify": false,
+          "box_id": 0,
+          "robot_id": 0,
+          "host_name": "10.20.0.209",
+          "port": 10003,
+          "motion_done_timeout_ms": 30000,
+          "io_poll_interval_ms": 50,
+          "default_velocity": 1.0,
+          "default_acceleration": 1.0,
+          "default_radius": 0.0,
+          "tcp_name": "TCP",
+          "ucs_name": "Base",
+          "box_di_bits": {},
+          "box_do_bits": {}
+        }
+      }
+    ]
+  }
+}

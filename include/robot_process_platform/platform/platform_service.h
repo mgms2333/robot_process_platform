@@ -34,6 +34,8 @@ public:
     ~PlatformService();
 
     core::Status Initialize(bool auto_connect_default_robot = false);
+    core::Status Initialize(const std::string& config_file_path,
+                            bool auto_connect_default_robot = false);
     void Shutdown();
 
     PlatformState GetPlatformState() const;
@@ -61,11 +63,10 @@ public:
     core::Status DeleteTask(const std::string& task_id,
                             const std::string& local_directory_path) const;
 
-    core::Status StartTask(const std::string& template_name,
-                           const std::string& task_context_json,
-                           const std::string& local_directory_path);
-    core::Status StartTaskById(const std::string& task_id,
-                               const std::string& local_directory_path);
+    core::Status StartTask(const std::string& task_id,
+                           const std::string& local_directory_path,
+                           int start_block_index = 0,
+                           int start_action_index = 0);
     core::Status PauseTask();
     core::Status ResumeTask();
     core::Status StopTask();
@@ -74,7 +75,7 @@ public:
     runtime::ExecutionContext GetRuntimeSnapshot() const;
 
 private:
-    core::Status RegisterDefaultHyRobot();
+    core::Status RegisterConfiguredHyRobot(const std::string& config_file_path);
     core::Status RebuildRuntimeService();
     core::Result<device::HyRobot*> GetActiveHyRobot() const;
 

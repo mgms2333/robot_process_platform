@@ -1,7 +1,14 @@
 #include "robot_process_platform/platform/platform_service.h"
 
+#include <exception>
+#include <filesystem>
+#include <fstream>
+#include <map>
+#include <sstream>
+#include <stdexcept>
 #include <utility>
 
+#include "robot_process_platform/core/json_utils.h"
 #include "robot_process_platform/platform/logger.h"
 
 namespace robot_process_platform::platform
@@ -11,7 +18,152 @@ namespace
 {
 
 constexpr const char* kDefaultHyRobotName = "hy_robot";
-constexpr const char* kDefaultHyRobotHostName = "10.20.0.209";
+constexpr const char* kDefaultPlatformConfigFilePath = "./config/platform_config.json";
+
+std::string ReadAllText(const std::string& file_path)
+{
+    std::ifstream input_file(file_path);
+    if (!input_file.is_open())
+    {
+        throw std::runtime_error("failed_to_open_file: " + file_path);
+    }
+
+    std::ostringstream text_stream;
+    text_stream << input_file.rdbuf();
+    return text_stream.str();
+}
+
+bool HasObjectField(const core::json::JsonValue& object_value, const std::string& field_name)
+{
+    return object_value.type == core::json::JsonValueType::Object &&
+           object_value.object_value.find(field_name) != object_value.object_value.end();
+}
+
+std::string GetOptionalStringField(const core::json::JsonValue& object_value,
+                                   const std::string& field_name,
+                                   const std::string& default_value)
+{
+    if (!HasObjectField(object_value, field_name))
+    {
+        return default_value;
+    }
+
+    return core::json::GetStringField(object_value, field_name);
+}
+
+bool GetOptionalBoolField(const core::json::JsonValue& object_value,
+                          const std::string& field_name,
+                          bool default_value)
+{
+    if (!HasObjectField(object_value, field_name))
+    {
+        return default_value;
+    }
+
+    const core::json::JsonValue& field_value = core::json::GetObjectField(object_value, field_name);
+    if (field_value.type != core::json::JsonValueType::Bool)
+    {
+        throw std::runtime_error("json_field_is_not_bool: " + field_name);
+    }
+
+    return field_value.bool_value;
+}
+
+int GetOptionalIntField(const core::json::JsonValue& object_value,
+                        const std::string& field_name,
+                        int default_value)
+{
+    if (!HasObjectField(object_value, field_name))
+    {
+        return default_value;
+    }
+
+    return core::json::GetIntField(object_value, field_name);
+}
+
+double GetOptionalDoubleField(const core::json::JsonValue& object_value,
+                              const std::string& field_name,
+                              double default_value)
+{
+    if (!HasObjectField(object_value, field_name))
+    {
+        return default_value;
+    }
+
+    return std::stod(core::json::GetNumberFieldAsString(object_value, field_name));
+}
+
+std::map<std::string, int> GetOptionalIntMapField(const core::json::JsonValue& object_value,
+                                                  const std::string& field_name)
+{
+    std::map<std::string, int> output_map;
+    if (!HasObjectField(object_value, field_name))
+    {
+        return output_map;
+    }
+
+    const core::json::JsonValue& field_value = core::json::GetObjectField(object_value, field_name);
+    if (field_value.type != core::json::JsonValueType::Object)
+    {
+        throw std::runtime_error("json_field_is_not_object: " + field_name);
+    }
+
+    for (const auto& field_entry : field_value.object_value)
+    {
+        if (field_entry.second.type != core::json::JsonValueType::Number)
+        {
+            throw std::runtime_error("json_map_value_is_not_number: " + field_name);
+        }
+
+        output_map[field_entry.first] = std::stoi(field_entry.second.number_value);
+    }
+
+    return output_map;
+}
+
+device::HyRobotConfig BuildHyRobotConfigFromJson(const core::json::JsonValue& config_value)
+{
+    device::HyRobotConfig hy_robot_config;
+    hy_robot_config.enable_sdk =
+        GetOptionalBoolField(config_value, "enable_sdk", hy_robot_config.enable_sdk);
+    hy_robot_config.auto_connect_controller =
+        GetOptionalBoolField(config_value,
+                             "auto_connect_controller",
+                             hy_robot_config.auto_connect_controller);
+    hy_robot_config.auto_electrify =
+        GetOptionalBoolField(config_value, "auto_electrify", hy_robot_config.auto_electrify);
+    hy_robot_config.box_id =
+        static_cast<unsigned int>(GetOptionalIntField(config_value, "box_id", hy_robot_config.box_id));
+    hy_robot_config.robot_id =
+        static_cast<unsigned int>(GetOptionalIntField(config_value, "robot_id", hy_robot_config.robot_id));
+    hy_robot_config.port =
+        static_cast<unsigned short>(GetOptionalIntField(config_value, "port", hy_robot_config.port));
+    hy_robot_config.motion_done_timeout_ms =
+        GetOptionalIntField(config_value,
+                            "motion_done_timeout_ms",
+                            hy_robot_config.motion_done_timeout_ms);
+    hy_robot_config.io_poll_interval_ms =
+        GetOptionalIntField(config_value,
+                            "io_poll_interval_ms",
+                            hy_robot_config.io_poll_interval_ms);
+    hy_robot_config.default_velocity =
+        GetOptionalDoubleField(config_value, "default_velocity", hy_robot_config.default_velocity);
+    hy_robot_config.default_acceleration =
+        GetOptionalDoubleField(config_value,
+                               "default_acceleration",
+                               hy_robot_config.default_acceleration);
+    hy_robot_config.default_radius =
+        GetOptionalDoubleField(config_value, "default_radius", hy_robot_config.default_radius);
+    hy_robot_config.host_name =
+        GetOptionalStringField(config_value, "host_name", hy_robot_config.host_name);
+    hy_robot_config.tcp_name =
+        GetOptionalStringField(config_value, "tcp_name", hy_robot_config.tcp_name);
+    hy_robot_config.ucs_name =
+        GetOptionalStringField(config_value, "ucs_name", hy_robot_config.ucs_name);
+    hy_robot_config.box_di_bits = GetOptionalIntMapField(config_value, "box_di_bits");
+    hy_robot_config.box_do_bits = GetOptionalIntMapField(config_value, "box_do_bits");
+    return hy_robot_config;
+}
 
 }  // namespace
 
@@ -27,6 +179,12 @@ PlatformService::~PlatformService()
 
 core::Status PlatformService::Initialize(bool auto_connect_default_robot)
 {
+    return Initialize(kDefaultPlatformConfigFilePath, auto_connect_default_robot);
+}
+
+core::Status PlatformService::Initialize(const std::string& config_file_path,
+                                         bool auto_connect_default_robot)
+{
     if (initialized)
     {
         return core::MakeSuccessStatus();
@@ -34,10 +192,11 @@ core::Status PlatformService::Initialize(bool auto_connect_default_robot)
 
     Logger::GetInstance().LogI("PlatformService", "Initializing platform service.");
 
-    const core::Status register_default_robot_status = RegisterDefaultHyRobot();
-    if (!register_default_robot_status.Ok())
+    const core::Status register_configured_robot_status =
+        RegisterConfiguredHyRobot(config_file_path);
+    if (!register_configured_robot_status.Ok())
     {
-        return register_default_robot_status;
+        return register_configured_robot_status;
     }
 
     const core::Status rebuild_runtime_status = RebuildRuntimeService();
@@ -88,17 +247,8 @@ PlatformState PlatformService::GetPlatformState() const
         platform_state.runtime_service_running = runtime_service->IsServiceRunning();
     }
 
-    const auto active_robot_result = device_manager.GetActiveRobot();
-    if (active_robot_result.Ok())
-    {
-        platform_state.active_robot_name = kDefaultHyRobotName;
-    }
-
-    const auto active_camera_result = device_manager.GetActiveCamera();
-    if (active_camera_result.Ok())
-    {
-        platform_state.active_camera_name = "active_camera";
-    }
+    platform_state.active_robot_name = device_manager.GetActiveRobotName();
+    platform_state.active_camera_name = device_manager.GetActiveCameraName();
 
     return platform_state;
 }
@@ -206,22 +356,10 @@ core::Status PlatformService::DeleteTask(const std::string& task_id,
     return task_manager.DeleteTask(task_id, local_directory_path);
 }
 
-core::Status PlatformService::StartTask(const std::string& template_name,
-                                        const std::string& task_context_json,
-                                        const std::string& local_directory_path)
-{
-    const core::Result<core::Task> create_task_result =
-        CreateTask(template_name, task_context_json, local_directory_path);
-    if (!create_task_result.Ok())
-    {
-        return core::MakeErrorStatus(create_task_result.code, create_task_result.message);
-    }
-
-    return runtime_service->SubmitLoadTask(create_task_result.value.value());
-}
-
-core::Status PlatformService::StartTaskById(const std::string& task_id,
-                                            const std::string& local_directory_path)
+core::Status PlatformService::StartTask(const std::string& task_id,
+                                        const std::string& local_directory_path,
+                                        int start_block_index,
+                                        int start_action_index)
 {
     const core::Result<core::Task> load_task_result = LoadTask(task_id, local_directory_path);
     if (!load_task_result.Ok())
@@ -230,7 +368,9 @@ core::Status PlatformService::StartTaskById(const std::string& task_id,
     }
 
     const core::Status submit_load_task_status =
-        runtime_service->SubmitLoadTask(load_task_result.value.value());
+        runtime_service->SubmitLoadTask(load_task_result.value.value(),
+                                        start_block_index,
+                                        start_action_index);
     if (!submit_load_task_status.Ok())
     {
         return submit_load_task_status;
@@ -274,13 +414,74 @@ runtime::ExecutionContext PlatformService::GetRuntimeSnapshot() const
     return runtime_service->GetContextSnapshot();
 }
 
-core::Status PlatformService::RegisterDefaultHyRobot()
+core::Status PlatformService::RegisterConfiguredHyRobot(const std::string& config_file_path)
 {
+    std::string robot_name = kDefaultHyRobotName;
     device::HyRobotConfig hy_robot_config;
-    hy_robot_config.host_name = kDefaultHyRobotHostName;
+
+    if (std::filesystem::exists(config_file_path))
+    {
+        try
+        {
+            const core::json::JsonValue root_value =
+                core::json::JsonParser(ReadAllText(config_file_path)).Parse();
+            const core::json::JsonValue& devices_value =
+                core::json::GetObjectField(root_value, "devices");
+            const std::string active_robot_name =
+                core::json::GetStringField(devices_value, "active_robot");
+            const std::vector<core::json::JsonValue>& robot_values =
+                core::json::GetArrayField(devices_value, "robots");
+
+            bool active_robot_found = false;
+            for (const core::json::JsonValue& robot_value : robot_values)
+            {
+                const std::string configured_robot_name =
+                    core::json::GetStringField(robot_value, "name");
+                if (configured_robot_name != active_robot_name)
+                {
+                    continue;
+                }
+
+                const std::string robot_type =
+                    core::json::GetStringField(robot_value, "type");
+                if (robot_type != "hy_robot")
+                {
+                    return core::MakeErrorStatus(core::ErrorCode::InvalidArgument,
+                                                 "unsupported_active_robot_type: " + robot_type);
+                }
+
+                robot_name = configured_robot_name;
+                hy_robot_config =
+                    BuildHyRobotConfigFromJson(core::json::GetObjectField(robot_value, "config"));
+                active_robot_found = true;
+                break;
+            }
+
+            if (!active_robot_found)
+            {
+                return core::MakeErrorStatus(core::ErrorCode::DeviceNotFound,
+                                             "active_robot_not_found_in_config: " + active_robot_name);
+            }
+
+            Logger::GetInstance().LogI("PlatformService",
+                                       "Loaded platform device config: " + config_file_path);
+        }
+        catch (const std::exception& exception)
+        {
+            return core::MakeErrorStatus(core::ErrorCode::InvalidArgument,
+                                         "failed_to_load_platform_config: " +
+                                             std::string(exception.what()));
+        }
+    }
+    else
+    {
+        Logger::GetInstance().LogW("PlatformService",
+                                   "Platform config file not found, using built-in mock hy robot defaults: " +
+                                       config_file_path);
+    }
 
     const core::Status register_robot_status =
-        device_manager.RegisterRobot(kDefaultHyRobotName,
+        device_manager.RegisterRobot(robot_name,
                                      std::make_unique<device::HyRobot>(hy_robot_config));
     if (!register_robot_status.Ok() &&
         register_robot_status.code != core::ErrorCode::DeviceAlreadyRegistered)
@@ -288,7 +489,7 @@ core::Status PlatformService::RegisterDefaultHyRobot()
         return register_robot_status;
     }
 
-    return device_manager.SetActiveRobot(kDefaultHyRobotName);
+    return device_manager.SetActiveRobot(robot_name);
 }
 
 core::Status PlatformService::RebuildRuntimeService()

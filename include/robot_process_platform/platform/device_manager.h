@@ -25,12 +25,14 @@ public:
     core::Result<device::IRobot*> GetRobot(const std::string& robot_name) const;
     core::Status SetActiveRobot(const std::string& robot_name);
     core::Result<device::IRobot*> GetActiveRobot() const;
+    std::string GetActiveRobotName() const;
 
     core::Status RegisterCamera(const std::string& camera_name, CameraPtr camera);
     core::Status UnregisterCamera(const std::string& camera_name);
     core::Result<device::ICamera*> GetCamera(const std::string& camera_name) const;
     core::Status SetActiveCamera(const std::string& camera_name);
     core::Result<device::ICamera*> GetActiveCamera() const;
+    std::string GetActiveCameraName() const;
 
 private:
     std::unordered_map<std::string, RobotPtr> robots;

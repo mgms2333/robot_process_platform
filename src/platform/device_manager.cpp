@@ -88,6 +88,11 @@ core::Result<device::IRobot*> DeviceManager::GetActiveRobot() const
     return GetRobot(active_robot_name);
 }
 
+std::string DeviceManager::GetActiveRobotName() const
+{
+    return active_robot_name;
+}
+
 core::Status DeviceManager::RegisterCamera(const std::string& camera_name, CameraPtr camera)
 {
     if (camera_name.empty() || camera == nullptr)
@@ -167,6 +172,11 @@ core::Result<device::ICamera*> DeviceManager::GetActiveCamera() const
     }
 
     return GetCamera(active_camera_name);
+}
+
+std::string DeviceManager::GetActiveCameraName() const
+{
+    return active_camera_name;
 }
 
 }  // namespace robot_process_platform::platform
