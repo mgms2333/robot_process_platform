@@ -5,6 +5,7 @@
       {
         "name": "hy_robot",
         "type": "hy_robot",
+        "default": true,
         "config": {
           "enable_sdk": false,
           "auto_connect_controller": true,

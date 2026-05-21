@@ -565,8 +565,9 @@ bool HyRobot::Connect()
 {
     if (!config.enable_sdk)
     {
-        platform::Logger::GetInstance().LogW("HyRobot", "Connect requested but hy SDK mode is disabled.");
-        return false;
+        sdk_connected = true;
+        platform::Logger::GetInstance().LogI("HyRobot", "Hy robot connected in mock mode.");
+        return true;
     }
 
 #ifndef ROBOT_PROCESS_PLATFORM_USE_HYROBOT_SDK

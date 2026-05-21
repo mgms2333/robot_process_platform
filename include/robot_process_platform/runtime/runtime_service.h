@@ -1,10 +1,13 @@
 #pragma once
 
 #include <condition_variable>
+#include <functional>
 #include <mutex>
 #include <optional>
 #include <queue>
+#include <string>
 #include <thread>
+#include <vector>
 
 #include "robot_process_platform/core/error_code.h"
 #include "robot_process_platform/core/task_types.h"
@@ -35,6 +38,32 @@ struct RuntimeCommand
     int start_action_index = 0;
 };
 
+enum class RuntimeFactType
+{
+    StateChanged,
+    TaskLoaded,
+    TaskStarted,
+    TaskPaused,
+    TaskResumed,
+    TaskStopped,
+    TaskCompleted,
+    TaskFailed,
+    TaskEmergencyStopped,
+    FaultReset
+};
+
+struct RuntimeFact
+{
+    RuntimeFactType type = RuntimeFactType::StateChanged;
+    RuntimeState state_before = RuntimeState::Idle;
+    RuntimeState state_after = RuntimeState::Idle;
+    ExecutionContext context;
+};
+
+std::string ToString(RuntimeFactType runtime_fact_type);
+
+using RuntimeFactCallback = std::function<void(const RuntimeFact&)>;
+
 class RuntimeService
 {
 public:
@@ -54,6 +83,7 @@ public:
     core::Status SubmitEmergencyStop();
     core::Status SubmitResetFault();
 
+    void SetRuntimeFactCallback(RuntimeFactCallback runtime_fact_callback_value);
     ExecutionContext GetContextSnapshot() const;
     bool IsServiceRunning() const;
 
@@ -63,6 +93,7 @@ private:
     void ProcessPendingCommands();
     void ProcessRuntimeCommand(const RuntimeCommand& command);
     void TickIfRunning();
+    void EmitRuntimeFacts(const std::vector<RuntimeFact>& runtime_facts) const;
 
     TaskRunner task_runner;
     ExecutionContext execution_context;
@@ -71,8 +102,10 @@ private:
     std::queue<RuntimeCommand> command_queue;
     mutable std::mutex command_lock;
     mutable std::mutex context_lock;
+    mutable std::mutex runtime_fact_callback_lock;
     std::condition_variable command_condition;
     std::thread runtime_thread;
+    RuntimeFactCallback runtime_fact_callback;
 
     bool service_running = false;
     bool stop_requested = false;

@@ -1,8 +1,11 @@
 #pragma once
 
+#include <functional>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "robot_process_platform/core/error_code.h"
@@ -19,7 +22,7 @@
 namespace robot_process_platform::platform
 {
 
-struct PlatformState
+struct SystemState
 {
     bool initialized = false;
     bool runtime_service_running = false;
@@ -27,18 +30,30 @@ struct PlatformState
     std::string active_camera_name;
 };
 
-class PlatformService
+struct ConfiguredRobotInfo
+{
+    std::string robot_name;
+    std::string robot_type;
+    bool is_default = false;
+};
+
+using RuntimeFactCallback = std::function<void(const runtime::RuntimeFact&)>;
+
+class SystemService
 {
 public:
-    PlatformService();
-    ~PlatformService();
+    SystemService();
+    ~SystemService();
 
     core::Status Initialize(bool auto_connect_default_robot = false);
     core::Status Initialize(const std::string& config_file_path,
                             bool auto_connect_default_robot = false);
     void Shutdown();
 
-    PlatformState GetPlatformState() const;
+    SystemState GetSystemState() const;
+    std::vector<ConfiguredRobotInfo> GetConfiguredRobots() const;
+    std::string GetDefaultRobotName() const;
+    std::string GetSelectedRobotName() const;
 
     core::Status LoadTemplateLibrary(const std::string& shared_library_path);
     core::Status UnloadTemplate(const std::string& template_name);
@@ -48,6 +63,8 @@ public:
                                std::unique_ptr<device::IRobot> robot);
     core::Status RegisterCamera(const std::string& camera_name,
                                 std::unique_ptr<device::ICamera> camera);
+    core::Status SelectConfiguredRobot(const std::string& robot_name);
+    core::Status ConnectSelectedRobot();
     core::Status SetActiveRobot(const std::string& robot_name);
     core::Status SetActiveCamera(const std::string& camera_name);
     core::Result<device::IRobot*> GetActiveRobot() const;
@@ -73,9 +90,11 @@ public:
     core::Status EmergencyStopTask();
     core::Status ResetFault();
     runtime::ExecutionContext GetRuntimeSnapshot() const;
+    void SetRuntimeFactCallback(RuntimeFactCallback runtime_fact_callback_value);
 
 private:
-    core::Status RegisterConfiguredHyRobot(const std::string& config_file_path);
+    void HandleRuntimeFact(const runtime::RuntimeFact& runtime_fact) const;
+    core::Status LoadConfiguredRobots(const std::string& config_file_path);
     core::Status RebuildRuntimeService();
     core::Result<device::HyRobot*> GetActiveHyRobot() const;
 
@@ -83,6 +102,12 @@ private:
     TaskManager task_manager;
     DeviceManager device_manager;
     std::unique_ptr<runtime::RuntimeService> runtime_service;
+    mutable std::mutex runtime_fact_callback_lock;
+    RuntimeFactCallback runtime_fact_callback;
+    std::vector<ConfiguredRobotInfo> configured_robots;
+    std::unordered_map<std::string, device::HyRobotConfig> configured_hy_robot_configs;
+    std::string default_robot_name;
+    std::string selected_robot_name;
     bool initialized = false;
 };
 
